@@ -1,2 +1,4 @@
 # ScrewTheoryRobotics-DYNAMICS-Illustrated
-"Screw Theory for Robotics - DYNAMICS Illustrated" book - Additional Material.
+"Screw Theory for Robotics - Modern Robot KINEMATICS - An Illustrated Handbook" - Additional Material.
+
+This a collection of THEORY, CODE, EXERCISES and SIMULATIONS for better understanding the basics of Screw Theory for Robotics. It is focused on DYNAMICS but KINEMATICS is also covered as necessary background. The material included supports the handbook, which is in preparation and planned for being published by 2020. The contents of the handbook are used at the “Master in Robotics and Automation” of the UC3M (Universidad Carlos III de Madrid) by the Department of Systems Engineering and Automation. The goal of this repository is to show the advantages of the Screw Theory mathematics for robotics with clear and simple examples for an easier understanding. The software performance is not the priority, even though you will realize the algebraic and geometric implementation from the Lie algebra it is really good. We are sure all these contents will be a foundation very useful for your robotics developments and applications!

@@ -1,12 +1,15 @@
 %% Screw Theory for Robotics - MATHEMATIC TOOLS.
-% Rigid Body Motion - HomogeneousTransformation: Rotation + Translation
+% Screw Rotation with exponential.  
 %
-% Transform a vector rt(-3,4,-11) expressed in coordinates of the T(OUVW)
-% system, to its expression in coordinates of the reference system S(OXYZ).
-% The system T(OUVW) is rotated pi/2 on the axis OX and then translated by 
-% a vector the vector ps(8,-4,12), with respect to S(OXYZ).
+% Transform a vector rt(3;2;1) expressed in coordinates of the mobil system
+% T(OUVW), to its expression rs? in coordinates of the reference system
+% S(OXYZ). The system T(OUVW) is rotated by an angle gamma(pi/4) with
+% respect to the axis OZ of the system S(OXYZ).
 %
-% Copyright (C) 2001-2020, by Dr. Jose M. Pardos-Gotor.
+% Using Screw Theory Functions from ST24R.
+% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
+%
+% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -20,7 +23,7 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU Lesser General Public License for more details.
 % 
-% You should have received a copy of the GNU Leser General Public License
+% You should have received a copy of the GNU Lesser General Public License
 % along with ST24R.  If not, see <http://www.gnu.org/licenses/>.
 %
 % http://www.
@@ -30,16 +33,11 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E221_ST24R_MATHEMATICS_HomogRotTra
+%% E221_ST24R_MATHEMATICS_HomogRot
 %
 clear;
 clc;
-rt = [-3; 4; -11; 1];
-alfa = pi/2;
-Ca = cos(alfa);
-Sa = sin(alfa);
-Hx = [1 0 0 0; 0 Ca -Sa 0; 0 Sa Ca 0; 0 0 0 1];
-ps = [8; -4; 12; 1];
-Hp = eye(4);
-Hp(:,4) = ps;
-rs = Hp * Hx * rt
+gamma = pi/4;
+rotm = rotz(gamma);
+rt = [3; 2; 1];
+rs = rotm * rt

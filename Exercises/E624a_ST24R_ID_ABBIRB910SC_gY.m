@@ -60,10 +60,10 @@ for i = 1:n
 end
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = pi/180*[140 150 0 400];
-% Thmin = -pi/180*[140 150 180 400];
+% Thmax = [pi/180*140 pi/180*150 0 pi/180*400];
+% Thmin = [-pi/180*140 -pi/180*150 0.18 -pi/180*400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = pi/180*[415 659 1 2400];
+% Thpmax = [7.58 7.58 1.02 pi/180*2400];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation
@@ -72,7 +72,7 @@ CM1 = [0.2; 0.2; 0]; CM2 = [0.5; 0.3; 0];
 CM3 = [0.65; 0.2; 0]; CM4 = [0.65; 0.125; 0];
 IT1 = [0.1; 0.3; 0.2]; IT2 = [0.1; 0.5; 0.3];
 IT3 = [0.1; 0; 0.1]; IT4 = [0.1; 0.1; 0.1];
-mass = [2 5 1 0.1];
+mass = [7 5 1 0.5];
 LiMas = [CM1 CM2 CM3 CM4;IT1 IT2 IT3 IT4; mass];
 %
 % Potential Action Vector - Gravity definition (i.e., -g direction).
@@ -83,10 +83,10 @@ PoAcc = [0 -9.81 0]';
 % It is only one random target point and the differentiability of the
 % position and velocity trajectory is given for granted. Here we are
 % concerned with the Dynamic solution for a single trajectory point.
-Th = [140*(rand-rand) 150*(rand-rand) -180*rand 400*(rand-rand)];
-Th = Th*pi/180;
-Thp = [415*(rand-rand) 659*(rand-rand) (rand-rand) 2400*(rand-rand)];
-Thp = Thp*pi/180;
+Th = [140*(rand-rand)*pi/180 150*(rand-rand)*pi/180];
+Th = [Th -0.18*rand 400*(rand-rand)*pi/180];
+Thp = [7.58*(rand-rand) 7.58*(rand-rand) 0.18*(rand-rand)];
+Thp = [Thp pi/180*2400*(rand-rand)];
 Thpp = [(rand-rand)*Thp(1) (rand-rand)*Thp(2) (rand-rand)*Thp(3)];
 Thpp = [Thpp (rand-rand)*Thp(4)];
 TwMag = [Twist; Th];

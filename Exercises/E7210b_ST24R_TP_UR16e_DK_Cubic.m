@@ -1,19 +1,22 @@
-%% Screw Theory - EXAMPLE Trajectory Planning with Inverse Kinematics.
-% ABB IRB1600.
-% IK Algorithm applied: PG7 + PG6 + PK1.
-% Trapezoidal interpolation for Joint Trajectory Planning.
+%% Screw Theory - EXAMPLE Trajectory Planning with Differential Kinematics.
+% UR16e.
+% Invese Differential Kinematics Algorithm with Screw Geometric Jacobian.
+% Quintic Interpolation for the Joint Path Planning.
 %
 % The goal of this exercise is to TEST:
-% TRAJECTORY PLANNING
+% TRAJECTORY PLANNING inside the workspace of the robot.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % For checking the quality of this IK solution, this exercise has 5 steps:
 % STEP1: Apply ForwardKinemats for the Robot for random Mag Theta1...6
 % getting a feasible set of TcP configuration (rot+tra) PATH in task-space.
-% STEP2: Calculate the IK solutions by SCREW THEORY management getting
-% the magnitud Theta1...6. There can be up to 8 right solutions for this
-% problem using this approach (theoretically there is max of 16 solutions).
-% Only one solution is chosen to build a set of Theta PATH in joint-space.
+% Employ some interpolation method to complete the trajectory between the
+% points of the end-effector path planning, till the discretization of
+% timeline. Small enough for limited changes of path planning magnitudes
+% between consecutive points.
+% STEP2: Evaluate the inverse DK by SCREW THEORY getting an approximation
+% to the magnitud Theta1...6. Only one solution in joint-space.
+% the INVERSE (Joint Thetap Velocities) DK, based on Tool Velocities.
 % STEP3: Test the joint path plannig applying Forward Kinemats only the 
 % Waypoints of interest in the PATH checking TcP congiguration (rot+tra).
 % STEP4: interpolate the joint path plannig with to complete a Joint
@@ -45,7 +48,7 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E723a_ST24R_TP_ABBIRB1600_IKPG76PK1_Trapez
+%% E7210b_ST24R_TP_UR16e_DK_Cubic
 %
 clear
 clc
@@ -73,25 +76,25 @@ traSize = size(traLine,2);
 n = 6;
 %
 % Mechanical characteristics of the Robot:
-po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
-pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
+po=[0; 0; 0]; pk=[0; 0; 0.181]; pr=[0.478; 0; 0.181];
+pf=[0.838; 0.174; 0.181];
+pg=[0.838; 0.174; 0.061]; pp=[0.838; 0.364; 0.061];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pf pf];
+Point = [po pk pr pf pg pp];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
-Twist = zeros(6,n);
-for i = 1:n
+Axis = [AxisZ AxisY AxisY AxisY -AxisZ AxisY];
+Twist = zeros(6,6);
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
-%
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);%
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-Themax = pi/180*[180 136 55 200 115 400];
-Themin = -pi/180*[180 63 235 200 115 400];
+Themax = pi/180*[360 360 360 360 360 360];
+Themin = -pi/180*[360 360 360 360 360 360];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-%Thepmax = pi/180*[150 160 170 320 400 460];
-%Thepmin = -pi/180*[150 160 170 320 400 460];
+Thepmax = pi/180*[120 120 180 180 180 180];
+Thepmin = -pi/180*[120 120 180 180 180 180];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tool TcP PATH planning in task-space (feasible)
@@ -105,23 +108,23 @@ TcpPath = zeros(TcpNumWayPoints+1,6);
 % Mag columns are the Joint 1..n positions for each point.
 Mag = zeros(TcpNumWayPoints+1,n);
 for i = 2:TcpNumWayPoints+1
-    for j = 1:n
-    Mag(i,j) = 1/2*(rand*Themax(j)+rand*Themin(j));
+    for j = 1:6
+    Mag(i,j) = 1/7*(rand*Themax(j)+rand*Themin(j));
     end
 end
 %
 % Example of Mag for the first exercise in the TP chapter.
 Mag = [   0         0         0         0         0         0;
-     1.1055    0.7524   -1.1112   -0.7451   -0.1266   -1.4154;
-    -0.3571    0.2453   -1.1633    0.8044   -0.5322   -1.7740;
-     0.3084   -0.3768   -1.4818   -0.8199   -0.6793   -0.0031;
-    -0.4445    0.7698    0.0931   -0.4549    0.6259   -0.5055;
-     0.2478    0.4699   -1.3437   -0.4602    0.2054    2.4450;
-    -0.2876    0.3124   -0.2010    1.1239    0.5570   -1.1862;
-    -0.7404    0.9537   -0.3936   -0.4686    0.6091    0.6315;
-     0.4256    0.4933   -0.8949   -0.5613   -0.3649    0.0098;
-     0.9595   -0.1295   -0.1434    1.3848    0.0198   -3.0113;
-    -0.0653    0.4161   -0.8336    1.0650   -0.6166    1.0270];
+    -0.2041    0.0862   -0.0735    0.4137   -0.4760   -0.4562;
+     0.1762   -0.6435   -0.4170   -0.4217   -0.6076   -0.0008;
+    -0.2540    0.3415    0.4313   -0.2339    0.5598   -0.1300;
+     0.1416   -0.0130    0.0827   -0.2367    0.1837    0.6287;
+    -0.1643    0.1010    0.5229    0.5780    0.4982   -0.3050;
+    -0.4231    0.5976    0.2253   -0.2410    0.5448    0.1624;
+     0.2432    0.3727   -0.0159   -0.2887   -0.3264    0.0025;
+     0.5483   -0.5624    0.0359    0.7122    0.0177   -0.7743;
+    -0.0373    0.1737    0.1277    0.5477   -0.5515    0.2641;
+    -0.2954    0.6055   -0.1669    0.6631   -0.1718   -0.4071];
 %
 % Forward Kinemats to get the Tool set of TARGETS, which is the TcP PATH.
 for i = 1:TcpNumWayPoints+1
@@ -137,92 +140,53 @@ end
 TcPTra = zeros(7,traSize);
 TcPTra(1,:) = traLine;
 for i = 1:6
-    TcPTra(i+1,:) = interp1(pathLine, TcpPath(:,i)',traLine);
+    TcPTra(i+1,:) = interp1(pathLine, TcpPath(:,i)',traLine, 'v5cubic');
 end
 ans = TcPTra;
 save( 'ToolREF','ans','-v7.3');
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Joint PATH planning in joint-space with Inverse Kinematics algorithm.
-% Calculate the IK solutions Theta using the SCREW THEORY
-% IK solution approach PG7+PG6+PK1 subproblems cosecutively.
+% Joint PATH planning in joint-space with Inverse DIFFEREENTIAL KINEMATICS.
+% Solutions for Theta by using the SCREW THEORY with Geometric Jacobiaan
+% and the integration of the joint velocities.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% IK chosen solution. It could be whatever value from 1 to 8.
-IkSolution = 5;
-%
 % Joint path rows are the path points.
 % Joint path columns are the Joint 1..n positions for each point.
-JointPath = zeros(TcpNumWayPoints+1,n);
+JointPath = zeros(traSize,n);
 %
-for j = 2:TcpNumWayPoints+1
-    % The input to the IK algorithm is the desired TcP TARGET in terms of
-    % homegeneous matrix with info for TcP position and orientation
-    noap = [eul2rotm(TcpPath(j,4:6),'XYZ') TcpPath(j,1:3)'; 0 0 0 1];
+for i = 1:traSize-1
+    % First we calculate the Tool end-effector velocities at current pose.
+    % as the difference between actual and next Tool pose configurations
+    % Both expressed as a Tool pose [trvX trvY trvZ rotX rotY rotZ] in
+    % Cartesian adn Euler coordinates with scheme X-Y-Z.
+    % VtS is the classical velocity for Tool Pose in spatial frame (S).
+    % consider the differentiation step size.
+    TargetVAL = TcPTra(2:7,i)';
+    TargetREF = TcPTra(2:7,i+1)'; 
+    VtS = minusposeEul(TargetVAL, TargetREF) / traSample;
     %
-    % Matrix to save all possible IK solutions.
-    % columns are solutions and rows Joint 1..n values for each solution.
-    Theta_STR6 = zeros(8,n);
+    % GEOMETRIC JACOBIAN JstS and SPATIAL TWIST VELOCITY "VstS" 
+    % are defined at current trajectory pose.
+    JstS = GeoJacobianS([Twist; JointPath(i,:)]);
+    VstS = [VtS(1:3)-axis2skew(VtS(4:6))*TargetVAL(1:3)'; VtS(4:6)];
     %
-    % STEP1: Calculate Theta3.
-    % With "pf" on the axis of E4, E5, E6 and "pk" on the axis of E1, E2.
-    % We apply (noap*gs0^-1) to "pf" and take the norm of the diffence of that
-    % resulting point and "pk". Doing so we can calculate Theta3 applying the
-    % Canonic problem PADEN-KAHAN-THREE, because the screws E4,E5,E6 do not affect
-    % "pf" and the E1,E2 do not affect the norm of a vector with an end on "pk"
-    % resulting the problem ||exp(E3^theta3)*pf-pk||=||noap*gs0^-1*pf-pk||
-    % which by PARDOS-GOTOR-SEVEN has none, two or four solutions for t123.
-    noapHst0if = noap*(Hst0\[pf; 1]); pkp = noapHst0if(1:3);
-    t123 = PardosGotorSeven(Twist(:,1), Twist(:,2), Twist(:,3), pf, pkp);
-    Theta_STR6(1,1:3) = t123(1,:);
-    Theta_STR6(2,1:3) = t123(1,:);
-    Theta_STR6(3,1:3) = t123(2,:);
-    Theta_STR6(4,1:3) = t123(2,:);
-    Theta_STR6(5,1:3) = t123(3,:);
-    Theta_STR6(6,1:3) = t123(3,:);
-    Theta_STR6(7,1:3) = t123(4,:);
-    Theta_STR6(8,1:3) = t123(4,:);
+    % Next formulation is slower, but works too for Non-Squarre matrices.
+    Thetap = (pinv(JstS)*VstS)'; % it is giving worse results.
+    % This formulation is faster, but only works for Square matrices 
+    %Thetap = (JstS\VstS)';
+    % The Theta VELOCITIES values are limited by the joints spped limits.
+    Thetap = jointmag2limits(Thetap, Thepmax, Thepmin);
     %
-    % STEP2: Calculate Theta4 & Theta5.
-    % With "pp" on the axis of E6 apply E3^-1*E2^-1*E1^-1*noap*gs0^-1 to "pp"
-    % and also the POE E4*E5*E6 to "pp" knowing already Theta3-Theta2-Theta1,
-    % resulting exactly a Canonic problem PADEN-KAHAN-TWO, because the screws
-    % E6 does not affect "pp" & Th3-Th2-Th1 known (four solutions), the problem
-    % exp(E4^theta4)*exp(E5^theta5)*pp = pk2p ; with
-    % pk2p = exp(E3^Th3)^-1*exp(E2^Th2)^-1*exp(E1^Th1)^-1*noap*gs0^-1*pp 
-    % which by PARDOS-GOTOR-SIX has none, one or two DOUBLE solutions:
+    % from Inverse DK we get the incremental joint coordinates
+    % and then integrating with EULER Explicit Method the Theta VALUE 
+    % with the new joint positions vector OUTPUT.
+    % consider the integration step size.
+    Theta = JointPath(i,:) + (Thetap * traSample);
+    % The Theta POSITION values are limited by the joints position limits.
+    Theta = jointmag2limits(Theta, Themax, Themin);
     %
-    noapHst0ip = noap*(Hst0\[pp; 1]); 
-    for i = 1:2:7                     % for the 4 values of t3-t2-t1.
-        pk2pt = (expScrew([Twist(:,1);Theta_STR6(i,1)]))\noapHst0ip;
-        pk2pt = (expScrew([Twist(:,2);Theta_STR6(i,2)]))\pk2pt;
-        pk2pt = (expScrew([Twist(:,3);Theta_STR6(i,3)]))\pk2pt;
-        pk2p = pk2pt(1:3);
-        t4t5 = PardosGotorSix(Twist(:,4),Twist(:,5),pp,pk2p);
-        Theta_STR6(i:i+1,4:5) = t4t5;
-    end
-    %
-    % STEP3: Calculate Theta6.
-    % With "po" not in the axis of E6 apply E5^-1...*E1^-1*noap*gs0^-1 to "po"
-    % and applying E6 to "po" knowing already Theta5...Theta1 (8 solutions),
-    % resulting exactly a Canonic problem PADEN-KAHAN-ONE, the problem:
-    % exp(E6^theta6)*po = pk3p ; with
-    % pk3p = exp(E5^Th5)^-1*...*exp(E1^Th1)^-1*noap*gs0^-1*po 
-    % which by PADEN-KAHAN-ONE has none or one solution. Then for all
-    % Th5-Th4-Th3-Th2-Th1 known (eight solutions) we get t61...t68:
-    %
-    noapHst0io = noap*(Hst0\[po; 1]);
-    for i = 1:size(Theta_STR6,1)
-        pk2pt = (expScrew([Twist(:,1);Theta_STR6(i,1)]))\noapHst0io;
-        pk2pt = (expScrew([Twist(:,2);Theta_STR6(i,2)]))\pk2pt;
-        pk2pt = (expScrew([Twist(:,3);Theta_STR6(i,3)]))\pk2pt;
-        pk2pt = (expScrew([Twist(:,4);Theta_STR6(i,4)]))\pk2pt;
-        pk2pt = (expScrew([Twist(:,5);Theta_STR6(i,5)]))\pk2pt;
-        pk3p = pk2pt(1:3);
-        Theta_STR6(i,6) = PadenKahanOne(Twist(:,6), po, pk3p);
-    end
-    %
-    JointPath(j,:) = Theta_STR6(IkSolution,:);
-    %
+    JointPath(i+1,:) = Theta;
+    %    
 end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -235,7 +199,7 @@ end
 TcpVal = zeros(TcpNumWayPoints+1,6);
 %
 for i = 1:TcpNumWayPoints+1
-    TwMag = [Twist; JointPath(i,:)];
+    TwMag = [Twist; JointPath(((i-1)/traSample)+1,:)];
     HstR = ForwardKinematicsPOE(TwMag) * Hst0;
     TcpVal(i,:) = [HstR(1:3,4)' rotm2eul(HstR(1:3,1:3), 'XYZ')];
 end
@@ -246,29 +210,34 @@ TcpPath
 TcpVal
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Joint TRAJECTORY - TRAPEZOIDAL motion.
+% Joint TRAJECTORY - QUINTIC motion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % row 1 is the trajectory line time.
 % rows 2-7 is Joint Theta Positon q (rad).
 % rows 8-13 is Joint Theta Velocity qd (rad/s).
 % rows 14-19 is Joint Theta Acceleration qdd (rad/ss).
-Joint6Trape = zeros(19,traSize);
-Joint6Trape(1,:) = traLine;
+Joint6Cubic = zeros(19,traSize);
+Joint6Cubic(1,:) = traLine;
 %
 for i = 1:n
-    [q, qd, qdd] = trapveltraj([pathLine; JointPath(:,i)'], traSize);
-    Joint6Trape(i+1,:) = q(2,:);
-    Joint6Trape(i+7,:) = qd(2,:);
-    Joint6Trape(i+13,:) = qdd(2,:);
+    JointPathOld = zeros(TcpNumWayPoints+1,n);
+    for j = 1:TcpNumWayPoints+1 
+        JointPathOld(j,:) = JointPath(((j-1)/traSample)+1,:);
+    end
+    [q, qd, qdd] = cubicpolytraj([pathLine; JointPathOld(:,i)'], pathLine, traLine);
+    %[q, qd, qdd] = trapveltraj([traLine; JointPath(:,i)'], traSize);
+    Joint6Cubic(i+1,:) = q(2,:);
+    Joint6Cubic(i+7,:) = qd(2,:);
+    Joint6Cubic(i+13,:) = qdd(2,:);
     figure(i);
-    plot(traLine, Joint6Trape(i+1,:),'LineWidth',2,'DisplayName','q'); hold on;
-    plot(traLine, Joint6Trape(i+7,:),'LineWidth',2,'DisplayName','qd'); hold on;
-    plot(traLine, Joint6Trape(i+13,:),'LineWidth',2,'DisplayName','qdd'); hold off;
+    plot(traLine, Joint6Cubic(i+1,:),'LineWidth',2,'DisplayName','q'); hold on;
+    plot(traLine, Joint6Cubic(i+7,:),'LineWidth',2,'DisplayName','qd'); hold on;
+    plot(traLine, Joint6Cubic(i+13,:),'LineWidth',2,'DisplayName','qdd'); hold off;
 end
 %
 % Create a MATLAB file with the Joint TRAJECTORY.
-ans = Joint6Trape;
-save( 'Traje6RTrape','ans','-v7.3');
+ans = Joint6Cubic;
+save( 'Traje6RCubic','ans','-v7.3');
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Test the quality of the Joint Trajectory obtained
@@ -281,7 +250,7 @@ save( 'Traje6RTrape','ans','-v7.3');
 TcPTra = zeros(7,traSize);
 TcPTra(1,:) = traLine;
 for i = 1:traSize
-    TwMag = [Twist; Joint6Trape(2:7,i)'];
+    TwMag = [Twist; Joint6Cubic(2:7,i)'];
     HstR = ForwardKinematicsPOE(TwMag) * Hst0;
     TcPTra(2:7,i) = [HstR(1:3,4)' rotm2eul(HstR(1:3,1:3), 'XYZ')]';
 end

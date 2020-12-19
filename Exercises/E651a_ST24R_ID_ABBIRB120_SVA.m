@@ -39,7 +39,7 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E641b_ST24R_ID_ABBIRB120_CLAvSVA
+%% E651a_ST24R_ID_ABBIRB120_SVA
 %
 clear;
 clc;
@@ -55,10 +55,10 @@ DoF = 6;
 % kinematics defined with the screw theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-po=[0;0;0]; pg=[0; 0; 0.19]; pk=[0; 0; 0.29]; pr=[0; 0; 0.56]; ps=[0; 0; 0.63];
+po=[0;0;0]; pk=[0; 0; 0.29]; pr=[0; 0; 0.56]; ps=[0; 0; 0.63];
 pf=[0.302; 0; 0.63]; pu=[0.302; 0; 0.558]; pp=[0.302; 0; 0.47];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pg pk pr ps pf pu];
+Point = [po pk pr ps pf pu];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
 Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
 Twist = zeros(6,DoF);
@@ -100,30 +100,12 @@ end
 TwMag = [Twist; Th];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ID with the classical Screw Theory for Robotics, Closed-Solution.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-% M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ID Classical Screw Theoryt - WRENCH algorithm.
-% This is with the new gravity wrench matrix for N(t).
-tic;
-%
-% M(t) Inertia matrix by the use of Jsl LINK TOOL Jacobian.
-MtST24RJsl = MInertiaJsl(TwMag,LiMas);
-% C(t,dt) Coriolis matrix by the use of Aij Adjoint transformation.
-CtdtST24RAij = CCoriolisAij(TwMag,LiMas,Thp);
-% N(t) Potential by the use of the new GRAVITY WRENCH Matrix.
-NtST24RWre = NPotentialWre(TwMag,LiMas,PoAcc);
-% Inverse Dynamics solution for the joint TORQUES T.
-ID_ST24R = MtST24RJsl*Thpp' + CtdtST24RAij*Thp' + NtST24RWre
-%
-toc
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ID with the Spatial Vector Algebra.
 % by Featherstone Spatial Toolbox 2015.
 % RNEA-POE - Recursive Newton-Euler Algorithm with Screw Theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+tic;
 %
 % Xts is the transformation from the Tool to the Spatial Systems
 % using the Spatial Vector Featherstone nomenclature
@@ -146,25 +128,20 @@ toc
 % the true values, as they are offset by gravity acceleration and force.
 % Nonetheless, the result of the ID is correct, as we are interested only
 % in the Joint Torques.
-%
-tic;
-%
 % Gravity definition: PoAcc = [0 0 -9.81]';
 ai = [0;0;0; -PoAcc];
 %
-% Motion Subspace for the Joints.
-S = [Axis; zeros(3,DoF)];
-%
 % Initial values for the recursive algorithm.
 PoE = eye(4); % Product of Exponentials.
-Hs0 = eye(4); % Homogeneous transformation for the Link Frame.
 Pre = [0; 0; 0]; % Origin of Base Frame.
+Hs0 = eye(4); % Homogeneous transformation for the Link Frame.
+vli = zeros(6,1); % Velocity for the Link.
 % Xst stores the Spatial Vector transformation to the base (zero), plus the
 % Links Frames and besides the X for the Tool.
 Xst = zeros(6,6,DoF+2);
 Xst(:,:,1) = eye(6); % the initial zero transformation for the base.
-% Link velocity, initial value.
-vli = zeros(6,1);
+% Motion Subspace for the Joints.
+S = [Axis; zeros(3,DoF)];
 % Body or Link Forces, inital value.
 fli = zeros(6,DoF);
 %
@@ -229,7 +206,7 @@ for i = DoF:-1:1
     % between Xi+1 to Xi, which is calculated from the FK expressions as
     % Xi+1_i = inv(X0_i+1) * X0_i = Xi+1_0 * X0i.
     % Attention because the Plücker transformation for forcers works
-    % in a dual way to the transformation for motion & velocities.
+    % in a complementary way to the transformation for motion & velocities.
     % Joint force is obtained with the Link force and the Joint force of 
     % the succesor link, transformed to predecessor link with spatial
     % vector FORCE transformation X.

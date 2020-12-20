@@ -1,17 +1,12 @@
-%% Screw Theory - INVERSE DYNAMICS - Classical STR vs. SVA.
+%% Screw Theory - INVERSE DYNAMICS - SVA.
 % ABB IRB120 Home position Elbow & Tool UP
 % & Gravity acting in direction -Y (gy).
 %
-% The goal of this exercise is to prove the INVERSE DYNAMICS with two
-% different approaches.
+% The goal of this exercise is to prove the INVERSE DYNAMICS
 % with T generalized joint torques
 % with q generalized joint positions, qd velocities and qdd accelerations.
 %
-% First with the classical Screw Theory for Robotics, Closed-Solution ID.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-% M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
-%
-% Second with the Spatial Vector Algebra.
+% With the Spatial Vector Algebra.
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %

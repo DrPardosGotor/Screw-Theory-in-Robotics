@@ -30,7 +30,7 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E623a_ST24R_ID_ABBIRB1600_gZ
+%% E623a_ST24R_ID_ABBIRB1600_CLA
 %
 clear
 clc

@@ -1,6 +1,6 @@
-%% Screw Theory - CLASSICAL INVERSE DYNAMICS - ABB IRB120.
-% ABB IRB120 Home position Elbow & Tool Up
-% & Gravity acting in direction -Y (gy).
+%% Screw Theory - CLASSICAL INVERSE DYNAMICS - Exercise ABB IRB910SC.
+% ABB IRB910SC home position straight on X axis.
+% & Gravity acting in direction vertical -Y (gy).
 %
 % The goal of this exercise is to prove the DYNAMICS
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
@@ -30,43 +30,42 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E622a_ST24R_ID_ABBIRB120_gY_ToolUp
+%% E625a_ST24R_ID_ABBIRB120_CLA
 %
 clear
 clc
 %
 % Robot DOF
-n = 6;
+n = 4;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % KINEMATIC Parameters of the Robot in terms of Screw Theory
-po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
-pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
+l1 = 0.4; l2 = 0.25; l3 = 0.125;
+po=[0;0;0]; pr=[l1;0;0]; pf=[l1+l2;0;0]; pp=[l1+l2;l3;0]; 
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pk pk pr pf pf pp];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
+Point = [po pr pf pp];
+Joint = ['rot'; 'rot'; 'tra'; 'rot'];
+Axis = [AxisY AxisY AxisY -AxisY];
 Twist = zeros(6,n);
-for i = 1:6
+for i = 1:n
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = pi/180*[165 110 70 160 120 400];
-% Thmin = -pi/180*[165 110 110 160 120 400];
-% Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = pi/180*[250 250 250 320 320 420];
+% Thmax = [pi/180*140 pi/180*150 0 pi/180*400];
+% Thmin = [-pi/180*140 -pi/180*150 -0.18 -pi/180*400];
+% Maximum SPEED for the robot joints m/s and rad/sec, (by catalog).
+% Thpmax = [7.58 7.58 1.02 pi/180*2400];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation
-% The S Spatial system has the "Z" axis oriented up.
-CM1 = [0; 0.29; 0]; CM2 = [0; 0.425; 0]; CM3 = [0; 0.63; 0];
-CM4 = [0.2; 0.63; 0]; CM5 = [0.302; 0.63; 0]; CM6 = [0.302; 0.73; 0];
-IT1 = [0.1; 0.2; 0.3]; IT2 = [0.3; 0.1; 0.5]; IT3 = [0.1; 0.1; 0.1];
-IT4 = [0.1; 0.2; 0.3]; IT5 = [0.1; 0.1; 0.1]; IT6 = [0.1; 0.1; 0.1];
-mass = [7 6 5 4 2 1];
-LiMas = [CM1 CM2 CM3 CM4 CM5 CM6;IT1 IT2 IT3 IT4 IT5 IT6; mass];
+% The S Spatial system has the "Y" axis oriented up.
+CM1 = [0.2; 0.2; 0]; CM2 = [0.5; 0.258; 0];
+CM3 = [0.65; 0.258; 0]; CM4 = [0.65; 0.208; 0];
+IT1 = [0.1; 0.3; 0.2]; IT2 = [0.1; 0.5; 0.3];
+IT3 = [0.1; 0.1; 0.1]; IT4 = [0.1; 0.1; 0.1];
+mass = [7 5 1 0.5];
+LiMas = [CM1 CM2 CM3 CM4;IT1 IT2 IT3 IT4; mass];
 %
 % Potential Action Vector - Gravity definition (i.e., -g direction).
 PoAcc = [0 -9.81 0]';
@@ -76,14 +75,12 @@ PoAcc = [0 -9.81 0]';
 % It is only one random target point and the differentiability of the
 % position and velocity trajectory is given for granted. Here we are
 % concerned with the Dynamic solution for a single trajectory point.
-Th = [165*(rand-rand) 110*(rand-rand) 70*(rand-rand)];
-Th = [Th 160*(rand-rand) 120*(rand-rand) 400*(rand-rand)];
-Th = Th*pi/180;
-Thp = [250*(rand-rand) 250*(rand-rand) 250*(rand-rand)];
-Thp = [Thp 320*(rand-rand) 320*(rand-rand) 420*(rand-rand)];
-Thp = Thp*pi/180;
+Th = [140*(rand-rand)*pi/180 150*(rand-rand)*pi/180];
+Th = [Th -0.18*rand 400*(rand-rand)*pi/180];
+Thp = [7.58*(rand-rand) 7.58*(rand-rand) 1.02*(rand-rand)];
+Thp = [Thp pi/180*2400*(rand-rand)];
 Thpp = [(rand-rand)*Thp(1) (rand-rand)*Thp(2) (rand-rand)*Thp(3)];
-Thpp = [Thpp (rand-rand)*Thp(4) (rand-rand)*Thp(5) (rand-rand)*Thp(6)];
+Thpp = [Thpp (rand-rand)*Thp(4)];
 TwMag = [Twist; Th];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

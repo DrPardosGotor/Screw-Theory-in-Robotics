@@ -50,10 +50,10 @@ DoF = 6;
 % kinematics defined with the screw theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-po=[0;0;0]; pk=[0; 0; 0.29]; pr=[0; 0; 0.56]; ps=[0; 0; 0.63];
+po=[0;0;0]; pg=[0; 0; 0.19]; pk=[0; 0; 0.29]; pr=[0; 0; 0.56]; ps=[0; 0; 0.63];
 pf=[0.302; 0; 0.63]; pu=[0.302; 0; 0.558]; pp=[0.302; 0; 0.47];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr ps pf pu];
+Point = [pg pk pr ps pf pu];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
 Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
 Twist = zeros(6,DoF);

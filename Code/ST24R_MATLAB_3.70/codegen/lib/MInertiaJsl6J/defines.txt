@@ -1,1 +1,0 @@
-MODEL=MInertiaJsl6J

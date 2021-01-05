@@ -1,4 +1,5 @@
 # ScrewTheoryRobotics-MECHANICS-Illustrated
+Dr. Jose M. Pardos-Gotor
 "Screw Theory for Robotics, MECHANICS - An Illustrated & Practicable Introduction to Modern Robotics"
 Additional Material
 

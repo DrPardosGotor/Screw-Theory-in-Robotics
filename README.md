@@ -1,4 +1,4 @@
-# ScrewTheoryRobotics-MECHANICS-Illustrated
+# Screw Theory in Robotics
 
 Dr. Jose M. Pardos-Gotor
 

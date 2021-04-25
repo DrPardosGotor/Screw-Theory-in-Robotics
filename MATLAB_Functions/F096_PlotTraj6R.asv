@@ -28,14 +28,16 @@ for i = 1:6
     ax = subplot(6,1,i);
     title(ax,['Joint ', num2str(i)]);
     yyaxis left;
-    plot(ax, x, Tra(i+1,1:end),'LineWidth',3); hold on;
-    plot(ax, x, Tra(i+7,1:end),'-r','LineWidth',2); hold on;
-    ylabel(ax,'rad \color{black} - \color{red} rad/s');
-    yyaxis right;
-    plot(ax, x, Tra(i+13,1:end),'LineWidth',1); hold off;
-    ylabel(ax,'rad/ss');
+    plot(ax, x, Tra(i+1,1:end),'-','LineWidth',5); hold on;
+    plot(ax, x, Tra(i+7,1:end),'-.r','LineWidth',5); hold on;
+    ylabel(ax,'rad \color{blue} - \color{red} rad/s');
+    yyaxis right;;
+    plot(ax, x, Tra(i+13,1:end),':m','LineWidth',5); hold off;
+    ylabel(ax,'\color{magenta} rad/ss');
+    set(gca,'FontSize',30);
 end
-xlabel(ax,'Seconds');
+xlabel(ax,'Seconds','FontSize',30);
+legend('Pos','Vel','Acc','FontSize',30)
 %
 fig1 = ax;
 end

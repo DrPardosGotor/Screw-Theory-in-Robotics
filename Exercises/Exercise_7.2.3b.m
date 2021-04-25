@@ -1,5 +1,5 @@
 %% Screw Theory - EXAMPLE Trajectory Planning with Differential Kinematics.
-% ABB IRB1600.
+% ABB IRB120 (TOOLUP).
 % Invese Differential Kinematics Algorithm with Screw Geometric Jacobian.
 % Quintic Interpolation for the Joint Path Planning.
 %
@@ -48,7 +48,7 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E724c_ST24R_TP_ABBIRB1600_DK_Quintic
+%% E722c_ST24R_TP_ABBIRB120_ToolUp_DK_Quintic
 %
 clear
 clc
@@ -76,17 +76,18 @@ traSize = size(traLine,2);
 n = 6;
 %
 % Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
-pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
+
+po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
+pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pf pf];
+Point = [pk pk pr pf pf pp];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
-Twist = zeros(6,n);
-for i = 1:n
+Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
+Twist = zeros(6,6);
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
 Themax = pi/180*[165 110 70 160 120 400];
@@ -112,18 +113,18 @@ for i = 2:TcpNumWayPoints+1
     end
 end
 %
-% Example of Mag for the first exercise in the TP chapter.
-Mag = [   0         0         0         0         0         0;
-     1.1055    0.7524   -1.1112   -0.7451   -0.1266   -1.4154;
-    -0.3571    0.2453   -1.1633    0.8044   -0.5322   -1.7740;
-     0.3084   -0.3768   -1.4818   -0.8199   -0.6793   -0.0031;
-    -0.4445    0.7698    0.0931   -0.4549    0.6259   -0.5055;
-     0.2478    0.4699   -1.3437   -0.4602    0.2054    2.4450;
-    -0.2876    0.3124   -0.2010    1.1239    0.5570   -1.1862;
-    -0.7404    0.9537   -0.3936   -0.4686    0.6091    0.6315;
-     0.4256    0.4933   -0.8949   -0.5613   -0.3649    0.0098;
-     0.9595   -0.1295   -0.1434    1.3848    0.0198   -3.0113;
-    -0.0653    0.4161   -0.8336    1.0650   -0.6166    1.0270];
+% Example of Mag for the first exercise of the TP chapter of the handbook.
+%Mag = [   0         0         0         0         0         0;
+%    -2.4629   -1.4788   -0.6692   -0.8806   -1.1314   -3.3457;
+%    -0.2360    0.0182   -0.0509    1.1307    0.4838   -1.1330;
+%     0.9384    0.2239   -0.2360    1.0266   -0.0881    0.0113;
+%    -1.6194    0.4954    0.2050   -0.4530   -0.0744   -0.0983;
+%     1.4843   -0.2273    0.9737   -0.3518   -0.1730    1.3741;
+%     0.7219    1.0669    0.4867   -0.7181    1.4642    1.0728;
+%     0.1467    0.2696   -0.3594    0.0637    0.5565    1.9461;
+%    -1.6941    0.6255   -0.3665   -0.2611    0.5036    4.5347;
+%     0.1590   -0.3994   -1.3927    0.6853   -0.1568    2.2881;
+%    -0.4339    0.6387   -0.6289    0.2913   -0.0463   -0.5843];
 %
 % Forward Kinemats to get the Tool set of TARGETS, which is the TcP PATH.
 for i = 1:TcpNumWayPoints+1
@@ -170,9 +171,9 @@ for i = 1:traSize-1
     VstS = [VtS(1:3)-axis2skew(VtS(4:6))*TargetVAL(1:3)'; VtS(4:6)];
     %
     % Next formulation is slower, but works too for Non-Squarre matrices.
-    Thetap = (pinv(JstS)*VstS)'; % it is giving worse results.
+    % Thetap = (pinv(JstS)*VstS)'; % it is giving worse results.
     % This formulation is faster, but only works for Square matrices 
-    %Thetap = (JstS\VstS)';
+    Thetap = (JstS\VstS)';
     % The Theta VELOCITIES values are limited by the joints spped limits.
     %Thetap = jointmag2limits(Thetap, Thepmax, Thepmin);
     %

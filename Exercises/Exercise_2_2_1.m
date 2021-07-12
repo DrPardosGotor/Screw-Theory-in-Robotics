@@ -1,5 +1,6 @@
-%% Screw Theory for Robotics - MATHEMATIC TOOLS.
-% Screw Rotation with exponential.  
+%% Screw Theory in Robotics / Ch2 - MATHEMATICAL TOOLS.
+%
+%% Exercise 2.2.1: Homogeneous Rotation 
 %
 % Transform a vector rt(3;2;1) expressed in coordinates of the mobil system
 % T(OUVW), to its expression rs? in coordinates of the reference system
@@ -9,7 +10,7 @@
 % Using Screw Theory Functions from ST24R.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -29,11 +30,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E221_ST24R_MATHEMATICS_HomogRot
+%% MATLAB Code
 %
 clear;
 clc;

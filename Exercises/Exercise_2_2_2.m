@@ -1,15 +1,13 @@
-%% Screw Theory for Robotics - MATHEMATIC TOOLS.
-% Rigid Body Motion - HomogeneousTransformation  - Rotation + Translation
+%% Screw Theory in Robotics / Ch2 - MATHEMATICAL TOOLS.
+%
+%% Exercise 2.2.2: Homogeneous Rotation Plus Translation
 %
 % Transform a vector rt(-3,4,-11) expressed in coordinates of the T(OUVW)
 % system, to its expression in coordinates of the reference system S(OXYZ).
 % The system T(OUVW) is rotated pi/2 on the axis OX and then translated by 
 % a vector the vector ps(8,-4,12), with respect to S(OXYZ).
 %
-% Using Screw Theory Functions from ST24R.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-%
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2001-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -23,31 +21,26 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU Lesser General Public License for more details.
 % 
-% You should have received a copy of the GNU Lesser General Public License
+% You should have received a copy of the GNU Leser General Public License
 % along with ST24R.  If not, see <http://www.gnu.org/licenses/>.
 %
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E232_ST24R_MATHEMATICS_ScrewRotTra
+%% MATLAB Code
 %
 clear;
 clc;
 rt = [-3; 4; -11; 1];
-ps = [8; -4; 12];
-theta1 = norm(ps);
-omega1= ps/theta1;
-xi1 = [omega1; 0; 0; 0];
-theta2 = pi/2;
-omega2 = [1; 0; 0];
-xi2 = [0; 0; 0; omega2];
-Et1 = expScrew([xi1; theta1]);
-Et2 = expScrew([xi2; theta2]);
-% "expScrew" by Dr. Pardos-Gotor ST24R.
-Hst0 = eye(4);
-rs = Et1 * Et2 * Hst0 * rt
-%
+alfa = pi/2;
+Ca = cos(alfa);
+Sa = sin(alfa);
+Hx = [1 0 0 0; 0 Ca -Sa 0; 0 Sa Ca 0; 0 0 0 1];
+ps = [8; -4; 12; 1];
+Hp = eye(4);
+Hp(:,4) = ps;
+rs = Hp * Hx * rt

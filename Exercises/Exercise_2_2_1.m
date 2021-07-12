@@ -39,6 +39,6 @@
 clear;
 clc;
 gamma = pi/4;
-rotm = rotz(gamma);
+rotm = rotz(gamma/pi*180);
 rt = [3; 2; 1];
 rs = rotm * rt

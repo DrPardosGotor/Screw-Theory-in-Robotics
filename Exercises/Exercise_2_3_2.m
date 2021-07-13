@@ -1,6 +1,11 @@
-%% Screw Theory in Robotics / Ch2 - MATHEMATICAL TOOLS.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-%% Exercise 2.3.2: Exponential Rotation Plus Translation
+%% Ch2 - MATHEMATICAL TOOLS
+% 
+% Exercise 2.3.2: Exponential Rotation Plus Translation
 %
 % Transform a vector rt(-3,4,-11) expressed in coordinates of the T(OUVW)
 % system, to its expression in coordinates of the reference system S(OXYZ).

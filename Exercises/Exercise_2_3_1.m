@@ -1,6 +1,11 @@
-%% Screw Theory in Robotics / Ch2 - MATHEMATICAL TOOLS.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-%% Exercise 2.3.1: Exponential Rotation 
+%% Ch2 - MATHEMATICAL TOOLS
+% 
+% Exercise 2.3.1: Exponential Rotation 
 %
 % Transform a vector rt(3;2;1) expressed in coordinates of the mobil system
 % T(OUVW), to its expression rs? in coordinates of the reference system

@@ -1,14 +1,21 @@
-%% Screw Theory for Robotics - FORWARD Kinematics.
-% PUMA robot - ABB IRB 120 - Tool Down.
-% Denavit-Hartenberg Algorithm.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
+%% Ch3 - FORWARD KINEMATICS.
+%
+% Exercise 3.2.1: Puma Robots (e.g., ABB IRB120)
+%
+% Denavit-Hartenberg Algorithm.
 % Calculate the Homogeneous Matrix transformation for the end-effector of
 % a ABB IRB120 (ToolDown configuration) PUMA type robot with six Joints.
+%
 %
 % Using Screw Theory Functions from ST24R.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
-% Copyright (C) 2001-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2001-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -28,11 +35,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E321_ST24R_FK_ABBIRB120_DHC
+%% MATLAB Code
 %
 clear
 clc

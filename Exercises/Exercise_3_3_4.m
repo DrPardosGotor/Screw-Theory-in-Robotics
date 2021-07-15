@@ -1,10 +1,20 @@
-%% Screw Theory for Robotics - FORWARD Kinematics - Exercise_60.
-% GANTRY robot - ABB IRB IRB6620LX
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
+%% Ch3 - FORWARD KINEMATICS.
+%
+% Exercise 3.3.4: Bending Backwards Robots (e.g., ABB IRB1600)
+%
+% Screw Theory POE.
 % Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB6620LX type robot of six Joints.
+% a ABB IRB 1600 PUMA type robot of six Joints.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Using Screw Theory Functions from ST24R.
+% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
+%
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -24,36 +34,33 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E334_ST24R_FK_ABBIRB6620LX_POE
+%% MATLAB Code
 %
 clear
 clc
-% Mechanical characteristics of the Robot:
-po=[0;0;0]; pu=[1088;2500;0]; % In fact pu has not use because Theta1=TRA
-pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
-pf=[2.643;1.613;0]; pp=[3.000;1.613;0]; 
+% Mechanical characteristics of the IRB120 Robot:
+po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
+pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pu pk pr pf pf pp];
-Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
+Point = [pk pk pr pf pf pp];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
 Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
 %
 Mag = [0 0 0 0 0 0];
-Mag(1)=rand*pi;
-for i = 2:6
+for i = 1:6
     Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
 end
 Mag
 %
-% STEP1: Apply ForwardKinemats to the Robot.
 TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0

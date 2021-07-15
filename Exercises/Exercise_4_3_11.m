@@ -1,5 +1,11 @@
-%% Screw Theory - CANONICAL Inverse Kinematics.
-% Pardos-Gotor EIGHT (PG8).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.3.11: Pardos-Gotor EIGHT (PG8).
 %
 % Calculate IK for three rotation SCREWS which are applied to a POSE.
 % Find the Inverse Kinematics of 3 consecutive SCREW ROTATIONS
@@ -24,7 +30,7 @@
 % STEP3: Test the solutions applying
 % ForwardKinemats to the Screws on Hp and checking we get the same Hk.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -44,11 +50,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E4311_STR24R_CIK_PardosGotor_EIGHT
+%% MATLAB Code
 %
 clear
 clc

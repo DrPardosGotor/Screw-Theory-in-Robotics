@@ -1,9 +1,15 @@
-%% Screw Theory - CANONICAL Inverse Kinematics.
-% Paden-Kahan ONE (PK1).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-% Calculate IK for a single rotation applied to a POINT.
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.3.4: Pardos-Gotor ONE (PG1).
+%
+% Calculate IK for a single rotation or translation by PadenKahanPardosOne
 % the movement is defined by the SCREW whose "Twist" parameters
-% are defined by: Axis = Axis1, Point = p1, JointType = 'rot'
+% are defined by: Axis = Axis1, Point = p1, JointType = 'rot' or 'tra';
 % and whose magnitude is defined by "Mag".
 %
 % The movement is aplied to the point pp for moving it to pk.
@@ -15,7 +21,7 @@
 % STEP3: Test the PKP1 solution applying ForwardKinemats to the Screw with
 % Theta1 on pp and checking we get the same pk.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -35,11 +41,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E431_STR24R_CIK_PadenKahan_ONE
+%% MATLAB Code
 %
 clear
 clc
@@ -48,8 +54,8 @@ pp = [rand*10 rand*10 rand*10]'
 Mag = (rand-rand)*2*pi
 %
 Axis1 = [0 1 0]';
-p1 = [0 0 0]';
-JointType1 = 'rot';
+p1 = [1 2 3]';
+JointType1 = 'tra';
 Twist = joint2twist(Axis1, p1, JointType1);
 %
 % STEP1: Apply ForwardKinemats to the Screw for "whatever" Mag
@@ -59,7 +65,7 @@ pk1h = HstR1*[pp; 1];
 pk1 = pk1h(1:3)
 %
 % STEP2: Calculate the IK solution by PK1 getting the magnitud Theta11
-Theta1 = PadenKahanOne(Twist, pp, pk1)
+Theta1 = PardosGotorOne(Twist, pp, pk1)
 %
 % STEP3: Test the PKP1 solution applying ForwardKinemats to the Screw
 TwMag2 = [Twist; Theta1];

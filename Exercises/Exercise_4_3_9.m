@@ -1,23 +1,33 @@
-%% Screw Theory - CANONICAL Inverse Kinematics.
-% Pardos-Gotor TWO (PG2).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-% Calculate IK for two consecutive SCREWS by PadenKahanPardosTwo function.
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.3.9: Pardos-Gotor SIX (PG6).
+%
+% Calculate IK for two consecutive SKEW rotation SCREWS.
+% This is a generalization for the PK2 which needs crossing axes.
+% This problem does not work for parallel axes, which is solved with PG4.
+% The PG6 solves the problem for both crossing and skewed axes.
+%
 % the movements are defined by the SCREWS whose "Twists" parameters
-% are: Axis = [Axis1 Axis2], Point = [p1 p2], JointType = 'rot' or 'tra'
+% are: Axis = [Axis1 Axis2], Point = [p1 p2], JointType = 'rot'
 % and whose magnitudes are defined by Mag = [Theta1 Theta2].
 %
 % The magnitude Theta2 is aplied to point pp for moving it to pc (or pd)
 % then the magnitude Theta1 is aplied to pc (or pd) for moving them to pk.
 %
-% For checking the PadenKahanPardosTwo function, this exercise has 3 steps:
+% For checking the this function, this exercise has 3 steps:
 % STEP1: Apply ForwardKinemats to the Screws for "whatever" Mag (t2 + t1)
 % (can be even more than 2pi) on pp and then getting a feasible pk.
-% STEP2: Calculate the IK solution by PKP2 getting the magnitud
+% STEP2: Calculate the IK solution by PG5 getting the magnitud
 % Theta1Theta2 = [t11 t21; t12 t22] DOUBLE SOLUTION.
-% STEP3: Test the TWO DOUBLE solutions got by PKP2 Theta1 & Theta2 applying
-% ForwardKinemats to the Screws on pp and checking we get the same pk.
+% STEP3: Test the solutions applying ForwardKinemats
+% to the Screws on pp and checking we get the same pk.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -37,24 +47,25 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E435_STR24R_CIK_PardosGotor_TWO
-%
+%% MATLAB Code
 %
 clear
 clc
 %
 pp = [rand*10 rand*10 rand*10]' % for testing various initial points
-Mag = [(rand-rand)*2*pi (rand-rand)*2*pi]; % for testing various magnitudes
+%pp = [0 0 6]'
+Mag = [(rand-rand)*2*pi (rand-rand)*2*pi] % for testing various magnitudes
+%Mag = [pi/2 pi]
 %
-p1 = [0 0 0]'; p2 = [0 0 0]'; % must imply the intersection of Twists
+p1 = [0 0 0]'; p2 = [0 0 1]'; % points for the Screw Axes.
 Point = [p1 p2];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]';
 Axis = [AxisX AxisY]; % whatever for testing the exercise
-JointType = ['tra'; 'tra']; % whatever for testing the exercise
+JointType = ['rot'; 'rot']; % whatever for testing the exercise
 % 
 % Now we build the TWISTS matrix for the chosen Joints
 Twist = joint2twist(Axis(:,1), Point(:,1), JointType(1,:));
@@ -68,17 +79,20 @@ TwMag1 = [Twist; Mag];
 HstR1 = ForwardKinematicsPOE(TwMag1);
 pk1h = HstR1*[pp; 1];
 pk1 = pk1h(1:3)
-%
 % STEP2: Calculate the IK solution by PK2 getting the magnitud
-% Theta1Theta2 = [t11 t21] DOUBLE SOLUTION.
-Th1Th2 = PardosGotorTwo(Twist(:,1), Twist(:,2), pp, pk1)
+% Theta1Theta2 = [t11 t21; t12 t22] DOUBLE SOLUTION.
+Th1Th2 = PardosGotorSix(Twist(:,1), Twist(:,2), pp, pk1)
 %
-% STEP3: Test the DOUBLE solution by PK2 Theta1 & Theta2 applying
+% STEP3: Test the TWO DOUBLE solutions by PK2 Theta1 & Theta2 applying
 % ForwardKinemats to the Screws on pp and checking we get the same pk.
 TwMag2 = [Twist; Th1Th2(1,:)];
 HstR2 = ForwardKinematicsPOE(TwMag2);
 pk2h = HstR2*[pp; 1];
 pk2 = pk2h(1:3)
+TwMag3 = [Twist; Th1Th2(2,:)];
+HstR3 = ForwardKinematicsPOE(TwMag3);
+pk3h = HstR3*[pp; 1];
+pk3 = pk3h(1:3)
 %
-% Check that (pk1 = pk2) 
+% Check that (pk1 = pk2 = pk3) 
 %

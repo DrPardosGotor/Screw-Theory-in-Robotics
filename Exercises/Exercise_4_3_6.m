@@ -1,5 +1,11 @@
-%% Screw Theory - CANONICAL Inverse Kinematics.
-% Paden-Kahan THREE (PK3).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.3.6: Pardos-Gotor THREE (PG3).
 %
 % Calculate IK for a single movement using PadenKahanPardosThree function.
 % computing the Theta of the Screw with twist x1, to move the point pp
@@ -20,7 +26,7 @@
 % STEP3: Test the PKP3 solution applying ForwardKinemats to the Screw with
 % Theta1 = [t11;t12] on pp and checking we get the same distance "de" to pk
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -34,17 +40,17 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU Lesser General Public License for more details.
 % 
-% You should have received a copy of the GNU Lesser General Public License
-% along with ST24R.  If not, see <http://www.gnu.org/licenses/>.
+% You should have received a copy of the GNU Leser General Public License
+% along with ST24R. If not, see <http://www.gnu.org/licenses/>.
 %
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E433_STR24R_CIK_PadenKahan_THREE
+%% MATLAB Code
 %
 clear
 clc
@@ -55,7 +61,7 @@ Mag = (rand-rand)*2*pi; % for testing various magnitudes
 %
 Axis1 = [1 0 0]';
 p1 = [0 0 0]';
-JointType1 = 'rot';
+JointType1 = 'tra';
 Twist = joint2twist(Axis1, p1, JointType1);
 %
 % STEP1: Apply ForwardKinemats to the Screw for "whatever" Mag
@@ -66,7 +72,7 @@ pc1 = pc1h(1:3);
 de1 = norm(pk-pc1)
 %
 % STEP2: Calculate the IK solution by PKP3 getting the magnitud Theta1
-Theta1 = PadenKahanThree(Twist, pp, pk, de1)
+Theta1 = PardosGotorThree(Twist, pp, pk, de1)
 %
 % STEP3: Test the PK1 solution applying ForwardKinemats to the Screw
 TwMag2 = [Twist; Theta1(1)];

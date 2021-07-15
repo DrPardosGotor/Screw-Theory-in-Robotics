@@ -1,5 +1,11 @@
-%% Screw Theory - CANONICAL Inverse Kinematics.
-% Pardos-Gotor FOUR (PG4).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.3.7: Pardos-Gotor FOUR (PG4).
 %
 % Calculate IK for two consecutive parallel rotation SCREWS by PsrdosFOUR.
 % the movements are defined by the SCREWS whose "Twists" parameters
@@ -17,7 +23,7 @@
 % STEP3: Test the TWO DOUBLE solutions got by PKP2 Theta1 & Theta2 applying
 % ForwardKinemats to the Screws on pp and checking we get the same pk.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -37,11 +43,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E437_STR24R_CIK_PardosGotor_FOUR
+%% MATLAB Code
 %
 clear
 clc

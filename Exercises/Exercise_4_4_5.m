@@ -1,5 +1,11 @@
-%% Screw Theory - EXAMPLES Inverse Kinematics.
-% GANTRY robot - ABB IRB IRB6620LX.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.4.5: GANTRY robot - ABB IRB IRB6620LX.
 %
 % The goal of this exercise is to TEST:
 % INVERSE KINEMATICS
@@ -28,7 +34,7 @@
 % with Theta = [t11...t61; t12...t62; ...; t18...t68] and checking we get
 % the same TcP configuration (rot+tra) as Hst.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -48,11 +54,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E444a_ST24R_IK_ABBIRB6620LX_PG146PK1
+%% MATLAB Code
 %
 clear
 clc

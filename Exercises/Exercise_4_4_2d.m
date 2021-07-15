@@ -1,13 +1,21 @@
-%% Screw Theory - EXAMPLES Inverse Kinematics - Exercise.
-% ABB IRB 1600 X120.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.4.2d: ABB IRB120 (TOOLDOWN).
+%
+% Algorithm applied: PG5 + PG4 + PG6 + PK1.
 %
 % The goal of this exercise is to TEST:
-% INVERSE KINEMATICS for IRB 1600 X120
+% INVERSE KINEMATICS for IRB120 ToolDown POSE
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % Mechanical characteristics of the Robot (AT REF POSITION):
 % po = Origen for he STATIONARY system of reference.
-% pk = point on the axis of Th2(rot).
+% pk = point in the crossing of the DOF Th1(rot) & Th2(rot).
 % pr = point in the axis of Th3(rot).
 % pf = point in the crossing of the DOF Th4(rot), Th5(rot), Th6(rot).
 % pp = TcP Tool Center Point
@@ -23,7 +31,7 @@
 % with Theta = [t11...t61; t12...t62; ...; t18...t68] and checking we get
 % the same TcP configuration (rot+tra) as Hst.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -43,68 +51,79 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E443a_ST24R_IK_ABBIRB1600_PG76PK1
+%% MATLAB Code
 %
 clear
 clc
-%
 % n is number of DOF.
 n = 6;
 Mag = zeros(1,n);
-for i = 1:n
+for i = 1:6
     Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
 end
 %
 % Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
-pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
+po=[0;0;0]; pk=[0; 0; 0.290]; pr=[0; 0; 0.560];
+pf=[0.302; 0; 0.630]; pp=[0.302; 0; 0.470];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
 Point = [po pk pr pf pf pf];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
-Twist = zeros(6,n);
-for i = 1:n
+Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
+Hst0 = trvP2tform(pp)*rotY2tform(pi);
 %
 % STEP1: Apply ForwardKinemats to the Robot.
 TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0
 %
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% IK solution approach PG7+PG6+PK1 subproblems cosecutively.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% IK solution approach PG5+PG4+PG6+PK1 subproblems cosecutively.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculate the IK solutions Theta using the SCREW THEORY.
-Theta_STR6 = zeros(8,n);
+Theta_STR4 = zeros(8,n);
 tic % start the ticking for calcule the performance of this algorithm.
 %
-% STEP1: Calculate Theta3.
-% With "pf" on the axis of E4, E5, E6 and "pk" on the axis of E1, E2.
-% We apply (noap*gs0^-1) to "pf" and take the norm of the diffence of that
-% resulting point and "pk". Doing so we can calculate Theta3 applying the
-% Canonic problem PADEN-KAHAN-THREE, because the screws E4,E5,E6 do not affect
-% "pf" and the E1,E2 do not affect the norm of a vector with an end on "pk"
-% resulting the problem ||exp(E3^theta3)*pf-pk||=||noap*gs0^-1*pf-pk||
-% which by PARDOS-GOTOR-SEVEN has none, two or four solutions for t123.
-noapHst0if = noap*(Hst0\[pf; 1]); pkp = noapHst0if(1:3);
-t123 = PardosGotorSeven(Twist(:,1), Twist(:,2), Twist(:,3), pf, pkp);
-Theta_STR6(1,1:3) = t123(1,:);
-Theta_STR6(2,1:3) = t123(1,:);
-Theta_STR6(3,1:3) = t123(2,:);
-Theta_STR6(4,1:3) = t123(2,:);
-Theta_STR6(5,1:3) = t123(3,:);
-Theta_STR6(6,1:3) = t123(3,:);
-Theta_STR6(7,1:3) = t123(4,:);
-Theta_STR6(8,1:3) = t123(4,:);
+% STEP1: Calculate Theta1.
+% With "pf" on the axis of E4, E5, E6. We apply (noap*hs0^-1) to "pf"
+% Doing so we get Theta1 applying the Canonic problem PADEN-KAHAN-ONE,
+% because the screws E4,E5,E6 do not affect "pf" for being on their axes
+% and the E2,E3 do not change the plane where "pf" moves, and so do not
+% affect the calculation for Theta1 resulting the problem 
+% "exp(E1^theta1)*pf = noap*hs0^-1*pf" by PK1.
+% which has two solution for t1 by PARDOS-GOTOR-FIVE.
+noapHst0if = noap*(Hst0\[pf; 1]); pk1 = noapHst0if(1:3);
+t1 = PardosGotorFive(Twist(:,1), pf, pk1);
+% prepare Theta for next calculation
+Theta_STR4(1:4,1) = t1(1);
+Theta_STR4(5:8,1) = t1(2);
 %
-% STEP2: Calculate Theta4 & Theta5.
+% STEP2: Calculate Theta2 & Theta3.
+% With "pf" on the axis of E4, E5, E6 we apply (noap*hs0^-1) to "pf" and
+% the POE E1..E6 also to "pf" having already known the value for Theta1
+% resulting exactly a Canonic problem PARDOS-FOUR, because the screws
+% E4,E5,E6 do not affect "pf" and the E1 is known,resulting the problem
+% exp(E2^theta2)*exp(E3^theta3)*pf = exp(E1^Th1)^-1*noap*gs0^-1*pf = pk1p
+% which by PARDOS-FOUR has none, one or two DOUBLE solutions.
+% t21-t31 & t22-t32 for each value of t11
+%
+for i = 1:4:5
+    E1inoapHst0if = (expScrew([Twist(:,1);Theta_STR4(i,1)]))\noapHst0if;
+    pk2 = E1inoapHst0if(1:3);
+    t2t3 = PardosGotorFour(Twist(:,2),Twist(:,3),pf,pk2);
+    Theta_STR4(i,2:3) = t2t3(1,:); 
+    Theta_STR4(i+1,2:3) = t2t3(1,:); 
+    Theta_STR4(i+2,2:3) = t2t3(2,:);
+    Theta_STR4(i+3,2:3) = t2t3(2,:);
+end
+%
+% STEP3: Calculate Theta4 & Theta5.
 % With "pp" on the axis of E6 apply E3^-1*E2^-1*E1^-1*noap*gs0^-1 to "pp"
 % and also the POE E4*E5*E6 to "pp" knowing already Theta3-Theta2-Theta1,
 % resulting exactly a Canonic problem PADEN-KAHAN-TWO, because the screws
@@ -115,15 +134,15 @@ Theta_STR6(8,1:3) = t123(4,:);
 %
 noapHst0ip = noap*(Hst0\[pp; 1]); 
 for i = 1:2:7                     % for the 4 values of t3-t2-t1.
-    pk2pt = (expScrew([Twist(:,1);Theta_STR6(i,1)]))\noapHst0ip;
-    pk2pt = (expScrew([Twist(:,2);Theta_STR6(i,2)]))\pk2pt;
-    pk2pt = (expScrew([Twist(:,3);Theta_STR6(i,3)]))\pk2pt;
+    pk2pt = (expScrew([Twist(:,1);Theta_STR4(i,1)]))\noapHst0ip;
+    pk2pt = (expScrew([Twist(:,2);Theta_STR4(i,2)]))\pk2pt;
+    pk2pt = (expScrew([Twist(:,3);Theta_STR4(i,3)]))\pk2pt;
     pk2p = pk2pt(1:3);
     t4t5 = PardosGotorSix(Twist(:,4),Twist(:,5),pp,pk2p);
-    Theta_STR6(i:i+1,4:5) = t4t5;
+    Theta_STR4(i:i+1,4:5) = t4t5; 
 end
 %
-% STEP3: Calculate Theta6.
+% STEP4: Calculate Theta6.
 % With "po" not in the axis of E6 apply E5^-1...*E1^-1*noap*gs0^-1 to "po"
 % and applying E6 to "po" knowing already Theta5...Theta1 (8 solutions),
 % resulting exactly a Canonic problem PADEN-KAHAN-ONE, the problem:
@@ -133,25 +152,26 @@ end
 % Th5-Th4-Th3-Th2-Th1 known (eight solutions) we get t61...t68:
 %
 noapHst0io = noap*(Hst0\[po; 1]);
-for i = 1:size(Theta_STR6,1)
-    pk2pt = (expScrew([Twist(:,1);Theta_STR6(i,1)]))\noapHst0io;
-    pk2pt = (expScrew([Twist(:,2);Theta_STR6(i,2)]))\pk2pt;
-    pk2pt = (expScrew([Twist(:,3);Theta_STR6(i,3)]))\pk2pt;
-    pk2pt = (expScrew([Twist(:,4);Theta_STR6(i,4)]))\pk2pt;
-    pk2pt = (expScrew([Twist(:,5);Theta_STR6(i,5)]))\pk2pt;
+for i = 1:size(Theta_STR4,1)
+    pk2pt = (expScrew([Twist(:,1);Theta_STR4(i,1)]))\noapHst0io;
+    pk2pt = (expScrew([Twist(:,2);Theta_STR4(i,2)]))\pk2pt;
+    pk2pt = (expScrew([Twist(:,3);Theta_STR4(i,3)]))\pk2pt;
+    pk2pt = (expScrew([Twist(:,4);Theta_STR4(i,4)]))\pk2pt;
+    pk2pt = (expScrew([Twist(:,5);Theta_STR4(i,5)]))\pk2pt;
     pk3p = pk2pt(1:3);
-    Theta_STR6(i,6) = PadenKahanOne(Twist(:,6), po, pk3p);
+    Theta_STR4(i,6) = PadenKahanOne(Twist(:,6), po, pk3p);
 end
 %
-Theta_STR6
 %
-tIK1 = round(toc*1000,1);
-time_IK_STR1 = ['Time to solve IK Screw Theory ', num2str(tIK1),' ms']
+Theta_STR4
+%
+tIK4 = round(toc*1000,1);
+time_IK_STR4 = ['Time to solve IK Screw Theory ', num2str(tIK4),' ms']
 %
 %
 % STEP3: Test the different solutions applying ForwardKinemats to Robot
-for i = 1:size(Theta_STR6,1)
-    TwMagi = [Twist; Theta_STR6(i,:)];
+for i = 1:size(Theta_STR4,1)
+    TwMagi = [Twist; Theta_STR4(i,:)];
     HstRi = ForwardKinematicsPOE(TwMagi);
     i
     noapi = HstRi * Hst0

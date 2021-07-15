@@ -1,14 +1,19 @@
-%% Screw Theory - EXAMPLES Inverse Kinematics.
-% ABB IRB120 Robot ToolUp.
-% The algorithm applied is PG7 + PG6 + PK1
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.4.4: ABB IRB 1600 X120.
 %
 % The goal of this exercise is to TEST:
-% INVERSE KINEMATICS for IRB120 ToolUp POSE
+% INVERSE KINEMATICS for IRB 1600 X120
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % Mechanical characteristics of the Robot (AT REF POSITION):
 % po = Origen for he STATIONARY system of reference.
-% pk = point in the crossing of the DOF Th1(rot) & Th2(rot).
+% pk = point on the axis of Th2(rot).
 % pr = point in the axis of Th3(rot).
 % pf = point in the crossing of the DOF Th4(rot), Th5(rot), Th6(rot).
 % pp = TcP Tool Center Point
@@ -24,7 +29,7 @@
 % with Theta = [t11...t61; t12...t62; ...; t18...t68] and checking we get
 % the same TcP configuration (rot+tra) as Hst.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -44,41 +49,43 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E442a_ST24R_IK_ABBIRB120_ToolUp_PG76PK1
+%% MATLAB Code
 %
 clear
 clc
+%
 % n is number of DOF.
 n = 6;
 Mag = zeros(1,n);
-for i = 1:6
+for i = 1:n
     Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
 end
 %
 % Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
-pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
+po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
+pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pk pk pr pf pf pp];
+Point = [po pk pr pf pf pf];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
-Twist = zeros(6,6);
-for i = 1:6
+Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
+Twist = zeros(6,n);
+for i = 1:n
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
 %
 % STEP1: Apply ForwardKinemats to the Robot.
 TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0
 %
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ABBIRB120 IK solution approach PG7+PG6+PK1 subproblems cosecutively.
+% IK solution approach PG7+PG6+PK1 subproblems cosecutively.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculate the IK solutions Theta using the SCREW THEORY.
 Theta_STR6 = zeros(8,n);

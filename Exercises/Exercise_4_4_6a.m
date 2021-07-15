@@ -1,10 +1,17 @@
-%% Screw Theory - EXAMPLES Inverse Kinematics - Exercise_70.
-% SCARA robot - ABB IRB 910SC.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.4.6a: SCARA robot - ABB IRB 910SC
+%
+% Approach by PG1 + PG4 + PK1
 %
 % Solves rhe INVERSE KINEMATICS for any desired position & orientation
 % of the TCP (noap goal) of the ABB IRB910SC Robot.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-% Approach by PG1 + PG4 + PK1
 %
 % Mechanical characteristics of the Robot (AT REF POSITION):
 % po = Origen for he STATIONARY system of reference.
@@ -25,7 +32,7 @@
 % with Theta = [t11...t41; t12...t42] and checking we get
 % the same TcP configuration (rot+tra) as Hst.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -45,11 +52,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E445a_ST24R_IK_ABBIRB910SC_PG14PK1
+%% MATLAB Code
 %
 clear
 clc

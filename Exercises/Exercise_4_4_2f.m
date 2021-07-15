@@ -1,5 +1,11 @@
-%% Screw Theory for Robotics - INVERSE KINEMATICS.
-% ABB IRB120 RobotToolDown.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch4 - INVERSE KINEMATICS.
+%
+% Exercise 4.4.2f: ABB IRB120 RobotToolDown.
 %
 % The goal of this exercise is to compare the performance between
 % ST24R "Screw Theory Toolbox for Robotics" by Dr. Pardos-Gotor.
@@ -27,7 +33,7 @@
 % STEP3: Test the different solutions applying ForwardKinemats to Robot
 % and checking we get the same TcP POSE configuration (rot+tra) as Hst.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -47,11 +53,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E441f_ST24R_IK_ABBIRB120_vsRST
+%% MATLAB Code
 %
 clear
 clc
@@ -85,9 +91,9 @@ noap = noapST24R
 traXYZ = noapST24R(1:3,4);
 rotXYZ = tform2eul(noapST24R,'XYZ');
 tic;
-ThetaST24R = Fcn_ST24R_IK_ABBIRB120_ToolD_mex([traXYZ', rotXYZ])
-tIKST24R = round(toc*1000000,0);
-time_IK_ST24R = ['Time to solve IK ST24R ', num2str(tIKST24R),' μs']
+ThetaST24R = Fcn_ST24R_IK_ABBIRB120_ToolD([traXYZ', rotXYZ])
+tIKST24R = round(toc*1000,0);
+time_IK_ST24R = ['Time to solve IK ST24R ', num2str(tIKST24R),' ms']
 %Fcn_ST24R_IK_ABBIRB120_ToolD
 % STEP3: Test the solution applying ForwardKinemats to Robot
 % we choose only the first solution for ThetaOut

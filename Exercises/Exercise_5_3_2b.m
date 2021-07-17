@@ -1,6 +1,11 @@
-%% Screw Theory - INVERSE DIFFERENTIAL Kinematics.
-% ABB IRB 120.
-% INVERSE Geometric Jacobian.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch5 - DIFFERENTIAL KINEMATICS.
+%
+% Exercise 5.3.2b: ABB IRB 120 - INVERSE Geometric Jacobian.
 %
 % The goal of this exercise is to solve for the Joint Velocities, taken
 % the Tool pose velocities (i.e. TcP position and T frame rotation vel).
@@ -19,7 +24,7 @@
 % Calculate the GEOMETRIC JACOBIAN.
 % Solve the joint velocities for the trajectory with the inverse Jacobian
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -39,11 +44,11 @@
 % http://www.preh
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E531b_ST24R_IDK_ABBIRB120_GeometricJacbian
+%% MATLAB Code
 %
 clear
 clc

@@ -1,5 +1,11 @@
-%% Screw Theory - FORWARD DIFFERENTIAL Kinematics.
-% ABB IRB910SC
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch5 - DIFFERENTIAL KINEMATICS.
+%
+% Exercise 5.2.1a: ABB IRB910SC
 %
 % The goal of this exercise is to prove FORWARD DIFFERENTIAL KINEMATICS
 % (Tcp Velocities) based on: ANALYTIC JACOBIAN
@@ -11,7 +17,7 @@
 % STEP3: Solve the TcP velocities with the ANALYTIC JACOBIAN (obtained by 
 % differentiation of the forward kinematics) and the joint velocities.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -31,11 +37,11 @@
 % http://www.preh
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E521a_ST24R_FDK_ABBIRB910_AnalyticJacobian
+%% MATLAB Code
 %
 clear
 clc

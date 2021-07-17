@@ -1,5 +1,11 @@
-%% Screw Theory - EXAMPLE Trajectory Planning with Inverse Kinematics.
-% KUKA IIWA 14.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch7 - TRAJECTORY GENERATION.
+%
+% Exercise 7.2.8a: KUKA IIWA 14.
 % IK Algorithm applied: PK1 + PK3 + PK2 + PK2 + PK2 + PK1.
 % Trapezoidal interpolation for Joint Trajectory Planning.
 %
@@ -20,7 +26,7 @@
 % STEP5: Test the joint trajectory plannig applying Forward Kinemats to all
 % the points in the TRAJECTORY checking TcP congiguration (rot+tra).
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -40,11 +46,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E7211a_ST24R_TP_KUKAIIWA_IKPK132221_Trapez
+%% MATLAB Code.
 %
 clear
 clc

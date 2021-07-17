@@ -1,21 +1,27 @@
-%% Screw Theory - EXAMPLE Trajectory Planning with Differential Kinematics.
-% ABB IRB910SC.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch7 - TRAJECTORY GENERATION.
+%
+% Exercise 7.2.5b: ABB IRB6620LX.
 % Invese Differential Kinematics Algorithm with Screw Geometric Jacobian.
-% Quintic Interpolation for the Joint Path Planning.
+% Cubic Interpolation for the Joint Path Planning.
 %
 % The goal of this exercise is to TEST:
 % TRAJECTORY PLANNING inside the workspace of the robot.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % For checking the quality of this IK solution, this exercise has 5 steps:
-% STEP1: Apply ForwardKinemats for the Robot for random Mag Theta1...4
+% STEP1: Apply ForwardKinemats for the Robot for random Mag Theta1...6
 % getting a feasible set of TcP configuration (rot+tra) PATH in task-space.
 % Employ some interpolation method to complete the trajectory between the
 % points of the end-effector path planning, till the discretization of
 % timeline. Small enough for limited changes of path planning magnitudes
 % between consecutive points.
 % STEP2: Evaluate the inverse DK by SCREW THEORY getting an approximation
-% to the magnitud Theta1...4. Only one solution in joint-space.
+% to the magnitud Theta1...6. Only one solution in joint-space.
 % the INVERSE (Joint Thetap Velocities) DK, based on Tool Velocities.
 % STEP3: Test the joint path plannig applying Forward Kinemats only the 
 % Waypoints of interest in the PATH checking TcP congiguration (rot+tra).
@@ -24,7 +30,7 @@
 % STEP5: Test the joint trajectory plannig applying Forward Kinemats to all
 % the points in the TRAJECTORY checking TcP congiguration (rot+tra).
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -44,11 +50,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E728c_ST24R_TP_ABBIRB910SC_DK_Quintic
+%% MATLAB Code.
 %
 clear
 clc
@@ -73,26 +79,30 @@ traSize = size(traLine,2);
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % n is number of DOF.
-n = 4;
+n = 6;
 %
-% Mechanical characteristics of the Robot:
-po=[0;0;0]; pr=[0.4;0;0]; pf=[0.65;0;0]; pp=[0.65;0.125;0]; 
+% Mechanical characteristics of the IRB120 Robot:
+po=[0;0;0]; pu=[1.088;2.500;0]; % In fact pu has not use because Theta1=TRA
+pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
+pf=[2.643;1.613;0]; pp=[3.000;1.613;0]; 
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pr pf pp];
-Joint = ['rot'; 'rot'; 'tra'; 'rot'];
-Axis = [AxisY AxisY AxisY -AxisY];
-Twist = zeros(6,n);
-for i = 1:4
+Point = [pu pk pr pf pf pf];
+Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
+Twist = zeros(6,6);
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
 %
 %Motion RANGE for the robot joints POSITION rad, (by catalog).
-Themax = [pi/180*140 pi/180*150 0 pi/180*400];
-Themin = [-pi/180*140 -pi/180*150 -0.125 -pi/180*400];
-% Maximum SPEED for the robot joints m/s and rad/sec, (by catalog).
-Thepmax = [7.58 7.58 1.02 pi/180*2400];
-Thepmin = -[7.58 7.58 1.02 pi/180*2400];
+Themax = [3 pi/180*[125 70 300 130 300]];
+% Th1max is 33 but limited to 3m
+Themin = [0 -pi/180*[125 180 300 130 300]];
+% Th1min 1.8 but extended down to 0m by the Spatial frame definition.
+%Maximum SPEED for the robot joints rad/sec, (by catalog).
+%Thepmax = [3.3 pi/180*[90 90 150 120 190]];
+%Thepmin = -[3.3 pi/180*[90 90 150 120 190]];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tool TcP PATH planning in task-space (feasible)
@@ -106,24 +116,23 @@ TcpPath = zeros(TcpNumWayPoints+1,6);
 % Mag columns are the Joint 1..n positions for each point.
 Mag = zeros(TcpNumWayPoints+1,n);
 for i = 2:TcpNumWayPoints+1
-    Mag(i,1) = 1/5*(rand*Themax(1)+rand*Themin(1));
-    Mag(i,2) = 1/2*(rand*Themax(2)+rand*Themin(2));
-    Mag(i,3) = rand*Themax(3)+rand*Themin(3);
-    Mag(i,4) = 1/50*(rand*Themax(4)+rand*Themin(4));
+    for j = 1:n
+    Mag(i,j) = 1/2*(rand*Themax(j)+rand*Themin(j));
+    end
 end
 %
 % Example of Mag for the first exercise in the TP chapter.
-Mag = [   0         0         0         0;
-     0.3545   -0.4046   -0.0438    0.0346;
-    -0.0011    0.8708   -0.1198    0.0751;
-    -0.1320   -0.2955   -0.0738    0.0043;
-    -0.1955    0.7798   -0.0171    0.0101;
-     0.3482    0.5865   -0.0271    0.0610;
-     0.2614    0.1384   -0.0206   -0.0555;
-    -0.1475    0.1261   -0.0453    0.0425;
-    -0.0897   -0.4351   -0.0744    0.0257;
-    -0.0612    0.6569   -0.1079    0.0611;
-     0.0782    0.9072   -0.1112   -0.0089];
+%Mag = [   0         0         0         0         0         0;
+%     0.3464   -0.8078   -0.7780   -0.3548    0.5116   -0.7438;
+%     1.4766    0.0999   -0.1260    1.4313   -0.4045   -0.6875;
+%     0.5787   -0.0033   -0.9550   -0.2320   -0.8548   -1.7964;
+%     0.5688    0.0547   -1.0592   -0.5110   -0.6631    0.5783;
+%     0.1926   -0.6232   -0.3987    0.9909    0.0880   -1.8170;
+%     1.2170   -0.5530   -0.8642   -0.7452    0.0229    0.5091;
+%     0.0972   -0.5098    0.0721    0.9517    0.2652   -1.2245;
+%     1.3206    0.4673    0.1181   -1.7408   -0.5735   -0.1985;
+%     0.8318   -0.4947    0.2305   -1.2507   -0.1850    0.5039;
+%     0.9600    0.1642   -0.7576    0.3545   -0.5373   -0.4048];
 %
 % Forward Kinemats to get the Tool set of TARGETS, which is the TcP PATH.
 for i = 1:TcpNumWayPoints+1
@@ -173,10 +182,8 @@ for i = 1:traSize-1
     Thetap = (pinv(JstS)*VstS)'; % it is giving worse results.
     % This formulation is faster, but only works for Square matrices 
     %Thetap = (JstS\VstS)';
-    % Using Moore-Penrose generalized inverse for getting Theta velocities.
-    %Thetap = ((pinv(JstS'*JstS) * JstS')*VstS)';
     % The Theta VELOCITIES values are limited by the joints spped limits.
-    Thetap = jointmag2limits(Thetap, Thepmax, Thepmin);
+    %Thetap = jointmag2limits(Thetap, Thepmax, Thepmin);
     %
     % from Inverse DK we get the incremental joint coordinates
     % and then integrating with EULER Explicit Method the Theta VALUE 
@@ -214,31 +221,31 @@ TcpVal
 % Joint TRAJECTORY - QUINTIC motion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % row 1 is the trajectory line time.
-% rows 2-5 is Joint Theta Positon q (rad).
-% rows 6-9 is Joint Theta Velocity qd (rad/s).
-% rows 10-13 is Joint Theta Acceleration qdd (rad/ss).
-Joint6Quintic = zeros(13,traSize);
-Joint6Quintic(1,:) = traLine;
+% rows 2-7 is Joint Theta Positon q (rad).
+% rows 8-13 is Joint Theta Velocity qd (rad/s).
+% rows 14-19 is Joint Theta Acceleration qdd (rad/ss).
+Joint6Cubic = zeros(19,traSize);
+Joint6Cubic(1,:) = traLine;
 %
 for i = 1:n
     JointPathOld = zeros(TcpNumWayPoints+1,n);
     for j = 1:TcpNumWayPoints+1 
         JointPathOld(j,:) = JointPath(((j-1)/traSample)+1,:);
     end
-    [q, qd, qdd] = quinticpolytraj([pathLine; JointPathOld(:,i)'], pathLine, traLine);
+    [q, qd, qdd] = cubicpolytraj([pathLine; JointPathOld(:,i)'], pathLine, traLine);
     %[q, qd, qdd] = trapveltraj([traLine; JointPath(:,i)'], traSize);
-    Joint6Quintic(i+1,:) = q(2,:);
-    Joint6Quintic(i+5,:) = qd(2,:);
-    Joint6Quintic(i+9,:) = qdd(2,:);
+    Joint6Cubic(i+1,:) = q(2,:);
+    Joint6Cubic(i+7,:) = qd(2,:);
+    Joint6Cubic(i+13,:) = qdd(2,:);
     figure(i);
-    plot(traLine, Joint6Quintic(i+1,:),'LineWidth',2,'DisplayName','q'); hold on;
-    plot(traLine, Joint6Quintic(i+5,:),'LineWidth',2,'DisplayName','qd'); hold on;
-    plot(traLine, Joint6Quintic(i+9,:),'LineWidth',2,'DisplayName','qdd'); hold off;
+    plot(traLine, Joint6Cubic(i+1,:),'LineWidth',2,'DisplayName','q'); hold on;
+    plot(traLine, Joint6Cubic(i+7,:),'LineWidth',2,'DisplayName','qd'); hold on;
+    plot(traLine, Joint6Cubic(i+13,:),'LineWidth',2,'DisplayName','qdd'); hold off;
 end
 %
 % Create a MATLAB file with the Joint TRAJECTORY.
-ans = Joint6Quintic;
-save( 'Traje4Quintic','ans','-v7.3');
+ans = Joint6Cubic;
+save( 'Traje6Cubic','ans','-v7.3');
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Test the quality of the Joint Trajectory obtained
@@ -251,7 +258,7 @@ save( 'Traje4Quintic','ans','-v7.3');
 TcPTra = zeros(7,traSize);
 TcPTra(1,:) = traLine;
 for i = 1:traSize
-    TwMag = [Twist; Joint6Quintic(2:5,i)'];
+    TwMag = [Twist; Joint6Cubic(2:7,i)'];
     HstR = ForwardKinematicsPOE(TwMag) * Hst0;
     TcPTra(2:7,i) = [HstR(1:3,4)' rotm2eul(HstR(1:3,1:3), 'XYZ')]';
 end

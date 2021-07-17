@@ -1,10 +1,16 @@
-%% Screw Theory - EXAMPLE Trajectory Planning with Inverse Kinematics.
-% ABB IRB120 (TOOLDOWN).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch7 - TRAJECTORY GENERATION.
+%
+% Exercise 7.2.3a: ABB IRB120 (TOOLUP).
 % IK Algorithm applied: PG5 + PG4 + PG6 + PK1.
-% Trapezoidal interpolation for Joint Trajectory Planning.
+% Cubic polynomial interpolation for Joint Trajectory Planning.
 %
 % The goal of this exercise is to TEST:
-% TRAJECTORY PLANNING for IRB120 with ToolDown POSE
+% TRAJECTORY PLANNING for IRB120 with TooUp POSE
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % For checking the quality of this IK solution, this exercise has 5 steps:
@@ -21,7 +27,7 @@
 % STEP5: Test the joint trajectory plannig applying Forward Kinemats to all
 % the points in the TRAJECTORY checking TcP congiguration (rot+tra).
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -41,11 +47,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E721a_ST24R_TP_ABBIRB120_IKPG546PK1_Trapez
+%% MATLAB Code.
 %
 clear
 clc
@@ -72,18 +78,17 @@ traSize = size(traLine,2);
 % n is number of DOF.
 n = 6;
 %
-% Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0; 0; 0.290]; pr=[0; 0; 0.560];
-pf=[0.302; 0; 0.630]; pp=[0.302; 0; 0.470];
+po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
+pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pf pf];
+Point = [pk pk pr pf pf pp];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
-Twist = zeros(6,n);
+Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
+Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi);
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
 Themax = pi/180*[165 110 70 160 120 400];
@@ -109,7 +114,7 @@ for i = 2:TcpNumWayPoints+1
     end
 end
 %
-% Example of Mag for the first exercise in the TP chapter.
+% Example of Mag for the first exercise of the TP chapter of the handbook.
 %Mag = [   0         0         0         0         0         0;
 %    -2.4629   -1.4788   -0.6692   -0.8806   -1.1314   -3.3457;
 %    -0.2360    0.0182   -0.0509    1.1307    0.4838   -1.1330;
@@ -259,32 +264,31 @@ TcpPath
 TcpVal
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Joint TRAJECTORY - TRAPEZOIDAL motion.
+% Joint TRAJECTORY - CUBIC Polynomic motion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % row 1 is the trajectory line time.
 % rows 2-7 is Joint Theta Positon q (rad).
 % rows 8-13 is Joint Theta Velocity qd (rad/s).
 % rows 14-19 is Joint Theta Acceleration qdd (rad/ss).
-Joint6Trape = zeros(19,traSize);
-Joint6Trape(1,:) = traLine;
+Joint6Cubic = zeros(19,traSize);
+Joint6Cubic(1,:) = traLine;
 %
 for i = 1:n
-    [q, qd, qdd] = trapveltraj([pathLine; JointPath(:,i)'], traSize);
-    Joint6Trape(i+1,:) = q(2,:);
-    Joint6Trape(i+7,:) = qd(2,:);
-    Joint6Trape(i+13,:) = qdd(2,:);
+    [q, qd, qdd] = cubicpolytraj([pathLine; JointPath(:,i)'], pathLine, traLine);
+    Joint6Cubic(i+1,:) = q(2,:);
+    Joint6Cubic(i+7,:) = qd(2,:);
+    Joint6Cubic(i+13,:) = qdd(2,:);
     figure(i);
-    axis.FontSize = 50;
-    plot(traLine, Joint6Trape(i+1,:),'-','LineWidth',5,'DisplayName','q'); hold on;
-    plot(traLine, Joint6Trape(i+7,:),'--','LineWidth',5,'DisplayName','qd'); hold on;
-    plot(traLine, Joint6Trape(i+13,:),':','LineWidth',5,'DisplayName','qdd'); hold off;
+    plot(traLine, Joint6Cubic(i+1,:),'-','LineWidth',5,'DisplayName','q'); hold on;
+    plot(traLine, Joint6Cubic(i+7,:),'--','LineWidth',5,'DisplayName','qd'); hold on;
+    plot(traLine, Joint6Cubic(i+13,:),':','LineWidth',5,'DisplayName','qdd'); hold off;
     set(gca,'FontSize',30);
-    legend('Pos','Vel','Acc','FontSize',50);
+    legend('Pos','Vel','Acc','FontSize',50)
 end
 %
 % Create a MATLAB file with the Joint TRAJECTORY.
-ans = Joint6Trape;
-save( 'Traje6RTrape','ans','-v7.3');
+ans = Joint6Cubic;
+save( 'Traje6RCubic','ans','-v7.3');
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Test the quality of the Joint Trajectory obtained
@@ -297,7 +301,7 @@ save( 'Traje6RTrape','ans','-v7.3');
 TcPTra = zeros(7,traSize);
 TcPTra(1,:) = traLine;
 for i = 1:traSize
-    TwMag = [Twist; Joint6Trape(2:7,i)'];
+    TwMag = [Twist; Joint6Cubic(2:7,i)'];
     HstR = ForwardKinematicsPOE(TwMag) * Hst0;
     TcPTra(2:7,i) = [HstR(1:3,4)' rotm2eul(HstR(1:3,1:3), 'XYZ')]';
 end

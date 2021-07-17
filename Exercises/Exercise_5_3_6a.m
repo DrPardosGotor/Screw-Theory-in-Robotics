@@ -1,5 +1,11 @@
-%% Screw Theory - DIFFERENTIAL Kinematics.
-% ABB IRB 910SC
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch5 - DIFFERENTIAL KINEMATICS.
+%
+% Exercise 5.3.6a: ABB IRB 910SC- GEOMETRIC Jacobian.
 %
 % The goal of this exercise is to prove the forward (Tcp Velocities)
 % calculation, based on: GEOMETRIC JACOBIAN
@@ -13,7 +19,7 @@
 % Of couse the result is the same, but they are different alternatives
 % inside the ST24R toolbox to calculate Geometric Jacobians.
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -33,11 +39,11 @@
 % http://www.preh
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E535a_ST24R_FDK_ABBIRB910_GeometricJacobian
+%% MATLAB Code.
 %
 clear
 clc

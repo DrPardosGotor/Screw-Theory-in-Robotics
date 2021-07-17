@@ -1,8 +1,13 @@
-%% Screw Theory - INVERSE & FORWARD DIFFERENTIAL Kinematics
-% ABB IRB6620LX.
-% GEOMETRIC Jacobian.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-% For the exercise of the Screw Theory for Robotics Handbook, the aim is to
+%% Ch5 - DIFFERENTIAL KINEMATICS.
+%
+% Exercise 5.3.2c: ABB IRB120 - GEOMETRIC Jacobian.
+%
+% For the exercise of the Screw Theory aims to
 % demonstrate the differential kinematics formulations (inv + for).
 % FIRST goal is to calculate the INVERSE (Joint Thetap Velocities)
 % Diferential Kinematics, based on the known or desired Tool Velocities.
@@ -11,7 +16,7 @@
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -31,40 +36,39 @@
 % http://www.preh
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E534a_ST24R_IFDK_ABBIRB6620LX_GeometricJacbian
+%% MATLAB Code.
 %
 clear;
 clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-po=[0;0;0]; pu=[1088;2500;0]; % In fact pu has not use because Theta1=TRA
-pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
-pf=[2.643;1.613;0]; pp=[3.000;1.613;0]; 
+po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
+pf=[0.302;0.630;0]; pp=[0.302;0.470;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pu pk pr pf pf pf];
-Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
+Point = [pk pk pr pf pf pp];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisY -AxisZ -AxisZ AxisX -AxisZ -AxisY];
 Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
+Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(pi);
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = [ 3.3 pi/180*[125 70 300 130 300]];
-% Thmin = [ 1.8 -pi/180*[125 180 300 130 300]];
+% Thmax = pi/180*[165 110 70 160 120 400];
+% Thmin = -pi/180*[165 110 110 160 120 400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = [3.3 pi/180*[90 90 150 120 190]];
+% Thpmax = pi/180*[250 250 250 320 320 420];
 %
 %%%%%%%%%%%%%%%%%%%%%%
 % FORWARD KINEMATICS to get a target inside the robot workspace
-Theta = [125*(rand-rand) 70*rand-180*rand 300*(rand-rand)];
-Theta = [Theta 130*(rand-rand) 300*(rand-rand)];
-Theta = [(2.5*rand)+1.8 Theta*pi/180];
+Theta = [165*(rand-rand) 110*(rand-rand) 70*(rand-rand)];
+Theta = [Theta 160*(rand-rand) 120*(rand-rand) 400*(rand-rand)];
+Theta = Theta*pi/180;
 TwMag = [Twist; Theta];
 noap = ForwardKinematicsPOE(TwMag) * Hst0;
 t1goal = [noap(1:3,4)' tform2eul(noap,'XYZ')]

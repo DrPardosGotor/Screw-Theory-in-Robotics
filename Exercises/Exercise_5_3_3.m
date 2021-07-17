@@ -1,8 +1,13 @@
-%% Screw Theory - INVERSE & FORWARD DIFFERENTIAL Kinematics
-% ABB IRB120 Tool-Up.
-% GEOMETRIC Jacobian.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
 %
-% For the exercise of the Screw Theory for Robotics Handbook, the aim is to
+%% Ch5 - DIFFERENTIAL KINEMATICS.
+%
+% Exercise 5.3.3: ABB IRB120 Tool-Up - GEOMETRIC Jacobian.
+%
+% For the exercise of the Screw Theory, the aim is to
 % demonstrate the differential kinematics formulations (inv + for).
 % FIRST goal is to calculate the INVERSE (Joint Thetap Velocities)
 % Diferential Kinematics, based on the known or desired Tool Velocities.
@@ -11,7 +16,7 @@
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -31,11 +36,11 @@
 % http://www.preh
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E532a_ST24R_IFDK_ABBIRB120_ToolUp_GeometricJacobian
+%% MATLAB Code.
 %
 clear;
 clc;

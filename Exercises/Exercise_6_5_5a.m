@@ -1,21 +1,23 @@
-%% Screw Theory - INVERSE DYNAMICS - Classical STR vs. SVA.
-% ABB IRB6620LX Home position Elbow Tool ahead.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.5.5a: ABB IRB6620LX - RNEA ID.
+% Home position Elbow Tool ahead.
 % & Gravity acting in direction -Y (gy).
 %
-% The goal of this exercise is to prove the INVERSE DYNAMICS with two
-% different approaches.
+% The goal of this exercise is to prove the INVERSE DYNAMICS
 % with T generalized joint torques
 % with q generalized joint positions, qd velocities and qdd accelerations.
 %
-% First with the classical Screw Theory for Robotics, Closed-Solution ID.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-% M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
-%
-% Second with the Spatial Vector Algebra.
+% With the Spatial Vector Algebra.
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -35,11 +37,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E654b_ST24R_ID_ABBIRB6620LX_CLAvSVA
+%% MATLAB Code.
 %
 clear;
 clc;
@@ -98,26 +100,6 @@ end
 %
 % Twist and Magnitude for the Joint position (Th).
 TwMag = [Twist; Th];
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ID with the classical Screw Theory for Robotics, Closed-Solution.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
-% M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ID Classical Screw Theoryt - WRENCH algorithm.
-% This is with the new gravity wrench matrix for N(t).
-tic;
-%
-% M(t) Inertia matrix by the use of Jsl LINK TOOL Jacobian.
-MtST24RJsl = MInertiaJsl(TwMag,LiMas);
-% C(t,dt) Coriolis matrix by the use of Aij Adjoint transformation.
-CtdtST24RAij = CCoriolisAij(TwMag,LiMas,Thp);
-% N(t) Potential by the use of the new GRAVITY WRENCH Matrix.
-NtST24RWre = NPotentialWre(TwMag,LiMas,PoAcc);
-% Inverse Dynamics solution for the joint TORQUES T.
-ID_ST24R = MtST24RJsl*Thpp' + CtdtST24RAij*Thp' + NtST24RWre
-%
-toc
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ID with the Spatial Vector Algebra.

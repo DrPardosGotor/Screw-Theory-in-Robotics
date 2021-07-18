@@ -1,12 +1,19 @@
-%% Screw Theory - CLASSICAL INVERSE DYNAMICS - ABB IRB120.
-% ABB IRB120 Home position Elbow & Tool down
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.2.8: KUKA IIWA14 - Lagrange ID.
+% Home Upright position,
 % & Gravity acting in direction -Z (gz).
 %
 % The goal of this exercise is to prove the DYNAMICS
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 % M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -26,64 +33,69 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E621a_ST24R_ID_ABBIRB120_CLA
+%% MATLAB Code.
 %
 clear
 clc
 %
 % Robot DOF
-n = 6;
+n = 7;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % KINEMATIC Parameters of the Robot in terms of Screw Theory
-po=[0;0;0]; pk=[0; 0; 0.290]; pr=[0; 0; 0.560];
-pf=[0.302; 0; 0.630]; pp=[0.302; 0; 0.470];
+po=[0;0;0]; pk=[0;0;0.36]; pr=[0;0;0.78]; pf=[0;0;1.18]; pp=[0;0;1.18];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pf pf];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
+Point = [po pk po pr po pf po];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisZ -AxisY AxisZ AxisY AxisZ];
 Twist = zeros(6,n);
 for i = 1:n
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi);
 %
-% Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = pi/180*[165 110 70 160 120 400];
-% Thmin = -pi/180*[165 110 110 160 120 400];
+% Maximum RANGE for the robot joints rad +/-, (by catalog).
+%Thmax = pi/180*[170 120 170 120 170 120 175];
+%Thmin = -pi/180*[170 120 170 120 170 120 175];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = pi/180*[250 250 250 320 320 420];
+%Thpmax = pi/180*[85 85 100 75 130 135 135];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation
 % The S Spatial system has the "Z" axis oriented up.
-CM1 = [0; 0; 0.29]; CM2 = [0; 0; 0.425]; CM3 = [0; 0; 0.63];
-CM4 = [0.2; 0; 0.63]; CM5 = [0.302; 0; 0.63]; CM6 = [0.302; 0; 0.53];
-IT1 = [0.1; 0.3; 0.2]; IT2 = [0.3; 0.5; 0.1]; IT3 = [0.1; 0.1; 0.1];
-IT4 = [0.1; 0.3; 0.2]; IT5 = [0.1; 0.1; 0.1]; IT6 = [0.1; 0.1; 0.1];
-mass = [7 6 5 4 2 1];
-LiMas = [CM1 CM2 CM3 CM4 CM5 CM6;IT1 IT2 IT3 IT4 IT5 IT6; mass];
+CM1 = [0; -0.03; 0.2775]; CM2 = [0; 0.042; 0.419]; CM3 = [0; 0.03; 0.6945];
+CM4 = [0; -0.034; 0.847]; CM5 = [0; -0.021; 1];
+CM6 = [0; 0.001; 1.18]; CM7 = [0; 0; 1.28];
+IT1 = [0.1; 0.09; 0.02]; IT2 = [0.018; 0.05; 0.044];
+IT3 = [0.08; 0.075; 0.01];
+IT4 = [0.03; 0.029; 0.01]; IT5 = [0.02; 0.018; 0.005];
+IT6 = [0.005; 0.0036; 0.0047]; IT7 = [0.001; 0.001; 0.001];
+mass = [4 4 3 2.7 1.7 1.8 0.3];
+LiMas = [CM1 CM2 CM3 CM4 CM5 CM6 CM7;IT1 IT2 IT3 IT4 IT5 IT6 IT7; mass];
 %
 % Potential Action Vector - Gravity definition (i.e., -g direction).
 PoAcc = [0 0 -9.81]';
+%
+% Maximum TORQUE for the robot joints Nm, (by catalog).
+%Tdynmax = [320 320 176 176 110 40 40];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Trajectory TARGET defined by JOINT Position, Velocity and Acceleration
 % It is only one random target point and the differentiability of the
 % position and velocity trajectory is given for granted. Here we are
 % concerned with the Dynamic solution for a single trajectory point.
-Th = [165*(rand-rand) 110*(rand-rand) 70*(rand-rand)];
-Th = [Th 160*(rand-rand) 120*(rand-rand) 400*(rand-rand)];
+Th = [170*(rand-rand) 120*(rand-rand) 170*(rand-rand) 120*(rand-rand)];
+Th = [Th 170*(rand-rand) 120*(rand-rand) 175*(rand-rand)];
 Th = Th*pi/180;
-Thp = [250*(rand-rand) 250*(rand-rand) 250*(rand-rand)];
-Thp = [Thp 320*(rand-rand) 320*(rand-rand) 420*(rand-rand)];
+Thp = [85*(rand-rand) 85*(rand-rand) 100*(rand-rand)];
+Thp = [Thp 75*(rand-rand) 130*(rand-rand) 135*(rand-rand) 135*(rand-rand)];
 Thp = Thp*pi/180;
 Thpp = [(rand-rand)*Thp(1) (rand-rand)*Thp(2) (rand-rand)*Thp(3)];
 Thpp = [Thpp (rand-rand)*Thp(4) (rand-rand)*Thp(5) (rand-rand)*Thp(6)];
+Thpp = [Thpp (rand-rand)*Thp(7)];
 TwMag = [Twist; Th];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

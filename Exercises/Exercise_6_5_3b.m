@@ -1,6 +1,13 @@
-%% Screw Theory - INVERSE DYNAMICS - Classical STR vs. SVA.
-% KUKA IIWA14 Home position straight up.
-% & Gravity acting in direction -Z (gz).
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.5.3b: ABB IRB120 - Lagrange non-recursive vs. RNEA.
+% Home position Elbow & Tool UP
+% & Gravity acting in direction -Y (gy).
 %
 % The goal of this exercise is to prove the INVERSE DYNAMICS with two
 % different approaches.
@@ -15,7 +22,7 @@
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -35,53 +42,49 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E651b_ST24R_ID_ABBIRB120_CLAvSVA
+%% MATLAB Code.
 %
 clear;
 clc;
 %
 % Potential Action Vector - Gravity definition (i.e., -g direction).
-PoAcc = [0 0 -9.81]';
+PoAcc = [0 -9.81 0]';
 %
 % Degress of Freedon of the Robot
-DoF = 7;
+DoF = 6;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 % kinematics defined with the screw theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-po=[0;0;0]; pg=[0;0;0.13]; pk=[0;0;0.36]; pn=[0;0;0.47]; pr=[0;0;0.78];
-ps=[0;0;0.98]; pf=[0;0;1.18]; pu=[0;0;1.3]; pp=[0;0;1.138];
+po=[0;0;0]; pg=[0;0.19;0]; pk=[0;0.29;0]; pr=[0;0.56;0]; ps=[0;0.63;0];
+pf=[0.302;0.63;0]; pu=[0.302;0.702;0]; pp=[0.302;0.79;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pg pk pn pr ps pf pu];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisZ -AxisY AxisZ AxisY AxisZ];
+Point = [pg pk pr ps pf pu];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
 Twist = zeros(6,DoF);
-for i = 1:DoF
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp);
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
-% Maximum RANGE for the robot joints rad +/-, (by catalog).
-Thmax = pi/180*[170 120 170 120 170 120 175];
-Thmin = -pi/180*[170 120 170 120 170 120 175];
+% Motion RANGE for the robot joints POSITION rad, (by catalog).
+Thmax = pi/180*[165 110 70 160 120 400];
+Thmin = -pi/180*[165 110 110 160 120 400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-Thpmax = pi/180*[85 85 100 75 130 135 135];
-Thpmin = -pi/180*[85 85 100 75 130 135 135];
+Thpmax = pi/180*[250 250 250 320 320 420];
+Thpmin = pi/180*[250 250 250 320 320 420];
 %
-% DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation
-CM14 = [0 -0.03 0.2775; 0 0.042 0.419; 0 0.03 0.6945; 0 -0.034 0.847]';
-CM57 = [0 -0.021 1; 0 0.001 1.18; 0 0 1.28]';
-CM = [CM14 CM57];
-IT14 = [0.1 0.09 0.02; 0.018 0.05 0.044; 0.08 0.075 0.01; 0.03 0.029 0.01]';
-IT57 = [0.02 0.018 0.005; 0.005 0.0036 0.0047; 0.001 0.001 0.001]';
-IT = [IT14 IT57];
-mass = [4 4 3 2.7 1.7 1.8 0.3];
+% DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation¡
+CM = [0 0.29 0; 0 0.425 0; 0 0.63 0; 0.2 0.63 0; 0.302 0.63 0; 0.302 0.73 0]';
+IT = [0.1 0.2 0.3; 0.3 0.1 0.5; 0.1 0.1 0.1; 0.1 0.2 0.3; 0.1 0.1 0.1; 0.1 0.1 0.1]';
+mass = [7 6 5 4 2 1];
 LiMas = [CM; IT; mass];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,6 +105,26 @@ end
 %
 % Twist and Magnitude for the Joint position (Th).
 TwMag = [Twist; Th];
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ID with the classical Screw Theory for Robotics, Closed-Solution.
+% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
+% M(t)*ddt + C(t,dt)*dt + N(t,dt) = T
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ID Classical Screw Theoryt - WRENCH algorithm.
+% This is with the new gravity wrench matrix for N(t).
+tic;
+%
+% M(t) Inertia matrix by the use of Jsl LINK TOOL Jacobian.
+MtST24RJsl = MInertiaJsl(TwMag,LiMas);
+% C(t,dt) Coriolis matrix by the use of Aij Adjoint transformation.
+CtdtST24RAij = CCoriolisAij(TwMag,LiMas,Thp);
+% N(t) Potential by the use of the new GRAVITY WRENCH Matrix.
+NtST24RWre = NPotentialWre(TwMag,LiMas,PoAcc);
+% Inverse Dynamics solution for the joint TORQUES T.
+ID_ST24R = MtST24RJsl*Thpp' + CtdtST24RAij*Thp' + NtST24RWre
+%
+toc
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ID with the Spatial Vector Algebra.
@@ -190,7 +213,7 @@ end
 % but is useful to complete the FK analysis of the robot
 % besides is used for the next implementation of the inwards pass.
 % Position of the Tool to the previous Link Frame
-Hs0 = Hs0 * trvP2tform(pp - Pre) * rotY2tform(pi/2);
+Hs0 = Hs0 * trvP2tform(pp - Pre) * rotX2tform(-pi/2) * rotZ2tform(pi);
 Hsi = PoE * Hs0;
 Xst(:,:,i+2) = tform2xpluc(Hsi);
 %

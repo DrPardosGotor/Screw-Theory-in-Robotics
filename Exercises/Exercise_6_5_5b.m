@@ -1,5 +1,12 @@
-%% Screw Theory - INVERSE DYNAMICS - Classical STR vs. SVA.
-% ABB IRB910SC Home position.
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.5.5b: ABB IRB6620LX - Lagrange non-recursive vs. RNEA.
+% Home position Elbow Tool ahead.
 % & Gravity acting in direction -Y (gy).
 %
 % The goal of this exercise is to prove the INVERSE DYNAMICS with two
@@ -15,7 +22,7 @@
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -35,11 +42,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E655b_ST24R_ID_ABBIRB910SC_CLAvSVA
+%% MATLAB Code.
 %
 clear;
 clc;
@@ -48,37 +55,36 @@ clc;
 PoAcc = [0 -9.81 0]';
 %
 % Degress of Freedon of the Robot
-DoF = 4;
+DoF = 6;
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 % kinematics defined with the screw theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-po=[0;0;0]; pk=[0;0.192;0]; pr=[0.4;0;0]; 
-ps=[0.65;0.36;0]; pu=[0.65;0.26;0]; pp=[0.65;0.125;0]; 
+po=[0;0;0]; pg=[1.088;2.500;0]; pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
+ps=[2.643;2.360;0]; pf=[2.643;1.613;0]; pu=[2.843;1.613;0]; pp=[3.000;1.613;0]; 
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pk pr ps pu];
-Joint = ['rot'; 'rot'; 'tra'; 'rot'];
-Axis = [AxisY AxisY AxisY -AxisY];
+Point = [pg pk pr ps pf pu];
+Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
 Twist = zeros(6,DoF);
 for i = 1:DoF
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(-pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-Thmax = [pi/180*140 pi/180*150 0 pi/180*400];
-Thmin = [-pi/180*140 -pi/180*150 -0.18 -pi/180*400];
-% Maximum SPEED for the robot joints m/s and rad/sec, (by catalog).
-Thpmax = [7.58 7.58 1.02 pi/180*2400];
-Thpmin = -[7.58 7.58 1.02 pi/180*2400];
-%
+Thmax = [ 33 pi/180*[125 70 300 130 300]];
+Thmin = [1.8 -pi/180*[125 180 300 130 300]];
+% Maximum SPEED for the robot joints rad/sec, (by catalog).
+Thpmax = [3.3 pi/180*[90 90 150 120 190]];
+Thpmin = -[3.3 pi/180*[90 90 150 120 190]];
 %
 % DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation¡
-CM = [0.2 0.2 0; 0.5 0.258 0; 0.65 0.258 0; 0.65 0.208 0]';
-IT = [0.1 0.3 0.2; 0.1 0.5 0.3; 0.1 0.1 0.1; 0.1 0.1 0.1]';
-mass = [7 5 1 0.5];
+CM = [1.2 2.5 0; 2 2.5 0.3; 2.5 2.5 -0.15; 2.5 2 0; 2.65 1.6 0; 2.8 1.6 0]';
+IT = [15 10 15; 5 15 15; 5 5 5; 15 5 15; 3 5 5; 0.1 0.1 0.1]';
+mass = [125 75 50 35 20 10];
 LiMas = [CM; IT; mass];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,10 +160,10 @@ tic;
 ai = [0;0;0; -PoAcc];
 %
 % Motion Subspace for the Joints.
-% Attention, because the third joint is prismatic.
-S1 = [Axis(:,1); 0; 0; 0]; S2 = [Axis(:,2); 0; 0; 0];
-S3 = [0; 0; 0; Axis(:,3)]; S4 = [Axis(:,4); 0; 0; 0];
-S = [S1 S2 S3 S4];
+% Attention, because the first joint is prismatic.
+S1 = [0; 0; 0; Axis(:,1)];
+S25 = [Axis(:,2:6); zeros(3,5)];
+S = [S1 S25];
 %
 % Initial values for the recursive algorithm.
 PoE = eye(4); % Product of Exponentials.
@@ -210,7 +216,7 @@ end
 % but is useful to complete the FK analysis of the robot
 % besides is used for the next implementation of the inwards pass.
 % Position of the Tool to the previous Link Frame
-Hs0 = Hs0 * trvP2tform(pp - Pre) * rotX2tform(pi/2) * rotZ2tform(-pi);
+Hs0 = Hs0 * trvP2tform(pp - Pre) * rotY2tform(pi/2) * rotZ2tform(-pi/2);
 Hsi = PoE * Hs0;
 Xst(:,:,i+2) = tform2xpluc(Hsi);
 %

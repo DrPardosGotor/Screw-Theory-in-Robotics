@@ -1,5 +1,12 @@
-%% Screw Theory - INVERSE DYNAMICS - SVA.
-% UNIVERSAL UR16e Home position
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.5.7a: UNIVERSAL UR16e - RNEA ID.
+% Home position along X.
 % & Gravity acting in direction -Z (gz).
 %
 % The goal of this exercise is to prove the INVERSE DYNAMICS
@@ -10,7 +17,7 @@
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -30,11 +37,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E651a_ST24R_ID_ABBIRB120_SVA
+%% MATLAB Code.
 %
 clear;
 clc;

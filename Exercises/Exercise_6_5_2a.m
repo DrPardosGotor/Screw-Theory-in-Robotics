@@ -1,5 +1,12 @@
-%% Screw Theory - INVERSE DYNAMICS - SVA.
-% ABB IRB1600 Home position Tool ahead
+%% Screw Theory in Robotics
+% An Illustrated and Practicable Introduction to Modern Mechanics
+% by CRC Press
+% © 2022 Jose M Pardos-Gotor
+%
+%% Ch6 - INVERSE DYNAMICS.
+%
+% Exercise 6.5.2a: ABB IRB120 - RNEA ID.
+% Home position Elbow & Tool down
 % & Gravity acting in direction -Z (gz).
 %
 % The goal of this exercise is to prove the INVERSE DYNAMICS
@@ -10,7 +17,7 @@
 % RNEA - Recursive Newton-Euler Algorithm by Featherstone
 % but with the screw theory POE for the management of the robot kinematics
 %
-% Copyright (C) 2003-2020, by Dr. Jose M. Pardos-Gotor.
+% Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
 % This file is part of The ST24R "Screw Theory Toolbox for Robotics" MATLAB
 % 
@@ -30,11 +37,11 @@
 % http://www.
 %
 % CHANGES:
-% Revision 1.1  2020/02/11 00:00:01
+% Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E651b_ST24R_ID_ABBIRB120_CLAvSVA
+%% MATLAB Code.
 %
 clear;
 clc;
@@ -50,30 +57,29 @@ DoF = 6;
 % kinematics defined with the screw theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-po=[0;0;0]; pg=[0;0;0.2]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
-ps=[0.35;0;0.9615]; pf=[0.75;0;0.9615]; pu=[0.775;0;0.9615]; pp=[0.9;0;0.9615];
+po=[0;0;0]; pg=[0; 0; 0.19]; pk=[0; 0; 0.29]; pr=[0; 0; 0.56]; ps=[0; 0; 0.63];
+pf=[0.302; 0; 0.63]; pu=[0.302; 0; 0.558]; pp=[0.302; 0; 0.47];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
 Point = [pg pk pr ps pf pu];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
+Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
 Twist = zeros(6,DoF);
 for i = 1:DoF
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
+Hst0 = trvP2tform(pp)*rotY2tform(pi);
 %
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-Thmax = pi/180*[180 150 65 190 115 400];
-Thmin = -pi/180*[180 90 245 190 115 400];
+Thmax = pi/180*[165 110 70 160 120 400];
+Thmin = -pi/180*[165 110 110 160 120 400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-Thpmax = pi/180*[180 180 185 385 400 460];
-Thpmin = -pi/180*[180 180 185 385 400 460];
-%
+Thpmax = pi/180*[250 250 250 320 320 420];
+Thpmin = pi/180*[250 250 250 320 320 420];
 %
 % DYNAMIC Parameters of the Robot at REF HOME POSITION - Only aproximation
-CM = [0.15 0 0.5; 0.15 -0.15 0.75; 0.2 0 0.96; 0.55 0 0.96; 0.75 0 0.96; 0.8 0 0.96]';
-IT = [0.2 0.2 0.3; 0.1 0.1 0.2; 0.2 0.1 0.1; 0.1 0.1 0.1; 0.1 0.1 0.1; 0.1 0.3 0.3]';
-mass = [75 35 25 20 10 5];
+CM = [0 0 0.29; 0 0 0.425; 0 0 0.63; 0.2 0 0.63; 0.302 0 0.63; 0.302 0 0.53]';
+IT = [0.1 0.3 0.2; 0.3 0.5 0.1; 0.1 0.1 0.1; 0.1 0.3 0.2; 0.1 0.1 0.1; 0.1 0.1 0.1]';
+mass = [7 6 5 4 2 1];
 LiMas = [CM; IT; mass];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,6 +107,8 @@ TwMag = [Twist; Th];
 % RNEA-POE - Recursive Newton-Euler Algorithm with Screw Theory POE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+tic;
+%
 % Xts is the transformation from the Tool to the Spatial Systems
 % using the Spatial Vector Featherstone nomenclature
 % the magnitudes are always measured in the predecesor link
@@ -122,25 +130,20 @@ TwMag = [Twist; Th];
 % the true values, as they are offset by gravity acceleration and force.
 % Nonetheless, the result of the ID is correct, as we are interested only
 % in the Joint Torques.
-%
-tic;
-%
 % Gravity definition: PoAcc = [0 0 -9.81]';
 ai = [0;0;0; -PoAcc];
 %
-% Motion Subspace for the Joints.
-S = [Axis; zeros(3,DoF)];
-%
 % Initial values for the recursive algorithm.
 PoE = eye(4); % Product of Exponentials.
-Hs0 = eye(4); % Homogeneous transformation for the Link Frame.
 Pre = [0; 0; 0]; % Origin of Base Frame.
+Hs0 = eye(4); % Homogeneous transformation for the Link Frame.
+vli = zeros(6,1); % Velocity for the Link.
 % Xst stores the Spatial Vector transformation to the base (zero), plus the
 % Links Frames and besides the X for the Tool.
 Xst = zeros(6,6,DoF+2);
 Xst(:,:,1) = eye(6); % the initial zero transformation for the base.
-% Link velocity, initial value.
-vli = zeros(6,1);
+% Motion Subspace for the Joints.
+S = [Axis; zeros(3,DoF)];
 % Body or Link Forces, inital value.
 fli = zeros(6,DoF);
 %
@@ -182,7 +185,7 @@ end
 % but is useful to complete the FK analysis of the robot
 % besides is used for the next implementation of the inwards pass.
 % Position of the Tool to the previous Link Frame
-Hs0 = Hs0 * trvP2tform(pp - Pre) * rotY2tform(pi/2);
+Hs0 = Hs0 * trvP2tform(pp - Pre) * rotY2tform(pi);
 Hsi = PoE * Hs0;
 Xst(:,:,i+2) = tform2xpluc(Hsi);
 %
@@ -205,7 +208,7 @@ for i = DoF:-1:1
     % between Xi+1 to Xi, which is calculated from the FK expressions as
     % Xi+1_i = inv(X0_i+1) * X0_i = Xi+1_0 * X0i.
     % Attention because the Plücker transformation for forcers works
-    % in a dual way to the transformation for motion & velocities.
+    % in a complementary way to the transformation for motion & velocities.
     % Joint force is obtained with the Link force and the Joint force of 
     % the succesor link, transformed to predecessor link with spatial
     % vector FORCE transformation X.

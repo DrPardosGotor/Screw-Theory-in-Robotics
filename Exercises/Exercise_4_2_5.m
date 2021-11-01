@@ -5,7 +5,7 @@
 %
 %% Ch4 - INVERSE KINEMATICS.
 %
-% Exercise 4.2.1: Puma Robots (e.g., ABB IRB120)
+% Exercise 4.2.5: Puma Robots (e.g., ABB IRB120)
 %
 % The goal of this exercise is to compare the performance between
 % ST24R "Screw Theory Toolbox for Robotics" by Dr. Pardos-Gotor.

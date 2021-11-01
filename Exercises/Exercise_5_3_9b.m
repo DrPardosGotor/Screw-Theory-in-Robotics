@@ -5,7 +5,7 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.2b: ABB IRB 120 - INVERSE Geometric Jacobian.
+% Exercise 5.3.9b: ABB IRB 120 - INVERSE Geometric Jacobian.
 %
 % The goal of this exercise is to solve for the Joint Velocities, taken
 % the Tool pose velocities (i.e. TcP position and T frame rotation vel).

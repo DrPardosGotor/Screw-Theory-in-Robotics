@@ -5,10 +5,10 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.6b: ABB IRB 910SC - GEOMETRIC Jacobian.
+% Exercise 5.2.4b: ABB IRB 910SC
 %
-% The goal of this exercise is to get the inverse (Joint Velocities) for a 
-% given tool velocities, based on the use of the GEOMETRIC JACOBIAN
+% The goal of this exercise is to prove the inverse (Joint Velocities)
+% calculation, based on: ANALYTIC JACOBIAN
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 %
@@ -36,46 +36,29 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% MATLAB Code.
+%% MATLAB Code
 %
 clear
 clc
 %
-% the magnitudes for the Joints.
-Theta = [-pi/2 -pi/2 0 0; -pi/2 -2.7 0 0; -pi/2 -3.141 0 0; pi/2 -2.7 0 0];
-% the velocity for TcP Position.
-TcPp = [0.14 0 -0.23 0 -0.92 0]'
-%
-ThetapGJ = zeros(size(Theta,2),size(Theta,1));
+Theta = [-pi/2 -pi/2 0 0; -pi/2 -2.7 0 0; -pi/2 -3.141 0 0; pi/2 -2.7 0 0]
+TcPp = [0.14 0 -0.23]'   % the velocity for TcP Position.
+ThetapAJ = zeros(3,size(Theta,1));
 %
 % Mechanical characteristics of the Robot:
 l1 = 0.4; l2 = 0.25; l3 = 0.125;
-po=[0;0;0]; pr=[l1;0;0]; pf=[l1+l2;0;0]; pp=[l1+l2;l3;0]; 
-AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pr pf pp];
-Joint = ['rot'; 'rot'; 'tra'; 'rot'];
-Axis = [AxisY AxisY AxisY -AxisY];
-Twist = zeros(6,4);
-for i = 1:4
-    Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
-end
-Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(-pi);
 %
 for i = 1:size(Theta)
-tic;
-% Apply ForwardKinemats to the Robot.
-TwMag = [Twist; Theta(i,:)]; 
-HstR = ForwardKinematicsPOE(TwMag);
-noap = HstR * Hst0;
+t1=Theta(i,1); t2=Theta(i,2); t3=Theta(i,3); t4=Theta(i,4);
+S1 = sin(t1); C1 = cos(t1); S2 = sin(t2); C2 = cos(t2);
+S12 = sin(t1+t2); C12 = cos(t1+t2);
 %
-% The MANIPULATOR JACOBIAN by DEFINITION.
-JstS = GeoJacobianS(TwMag);
+% The Inverse Analytical JACOBIAN for only the TcP POSITION.
+InJaPo = [l2*C12 0 -l2*S12; -l2*C12-l1*C1 0 l2*S12+l1*S1; 0 l1*l2*S2 0];
+InJaPo = InJaPo/(l1*l2*S2);
 %
 % The Velocity for the Joints of the Robot is:
-%ThetapGJ = JstS\[TcPp(1:3)-cross(TcPp(4:6),noap(1:3,4)); TcPp(4:6)]
-ThetapGJ(:,i) = JstS\[TcPp(1:3)-axis2skew(TcPp(4:6))*noap(1:3,4); TcPp(4:6)]
-tIGJ = round(toc*1000,1);
-time_IK_GJ = ['Time differential inverse kinematics ', num2str(tIGJ),' ms']
-%
+ThetapAJ(:,i) = InJaPo*TcPp;
 end
+ThetapAJ
 %

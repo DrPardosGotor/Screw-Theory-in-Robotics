@@ -5,7 +5,7 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.7: UNIVERSAL UR16e - GEOMETRIC Jacobian.
+% Exercise 5.3.10: ABB IRB120 Tool-Up - GEOMETRIC Jacobian.
 %
 % For the exercise of the Screw Theory, the aim is to
 % demonstrate the differential kinematics formulations (inv + for).
@@ -47,28 +47,27 @@ clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-po=[0; 0; 0]; pk=[0; 0; 0.181]; pr=[0.478; 0; 0.181];
-pf=[0.838; 0.174; 0.181];
-pg=[0.838; 0.174; 0.061]; pp=[0.838; 0.364; 0.061];
+po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
+pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pg pp];
+Point = [pk pk pr pf pf pp];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisY -AxisZ AxisY];
+Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
 Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
 Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = pi/180*[360 360 360 360 360 360];
-% Thmin = -pi/180*[360 360 360 360 360 360];
+% Thmax = pi/180*[165 110 70 160 120 400];
+% Thmin = -pi/180*[165 110 110 160 120 400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = pi/180*[120 120 180 180 180 180];
+% Thpmax = pi/180*[250 250 250 320 320 420];
 %
 %%%%%%%%%%%%%%%%%%%%%%
 % FORWARD KINEMATICS to get a target inside the robot workspace
-Theta = [360*(rand-rand) 360*(rand-rand) 360*(rand-rand)];
-Theta = [Theta 360*(rand-rand) 360*(rand-rand) 360*(rand-rand)];
+Theta = [165*(rand-rand) 110*(rand-rand) 70*(rand-rand)];
+Theta = [Theta 160*(rand-rand) 120*(rand-rand) 400*(rand-rand)];
 Theta = Theta*pi/180;
 TwMag = [Twist; Theta];
 noap = ForwardKinematicsPOE(TwMag) * Hst0;

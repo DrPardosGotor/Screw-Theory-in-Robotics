@@ -5,7 +5,7 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.2.1a: ABB IRB910SC
+% Exercise 5.2.4a: ABB IRB910SC
 %
 % The goal of this exercise is to prove FORWARD DIFFERENTIAL KINEMATICS
 % (Tcp Velocities) based on: ANALYTIC JACOBIAN

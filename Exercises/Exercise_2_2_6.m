@@ -5,7 +5,7 @@
 %
 %% Ch2 - MATHEMATICAL TOOLS
 % 
-% Exercise 2.2.1: Homogeneous Rotation 
+% Exercise 2.2.6: Homogeneous Rotation 
 %
 % Transform a vector rt(3;2;1) expressed in coordinates of the mobil system
 % T(OUVW), to its expression rs? in coordinates of the reference system

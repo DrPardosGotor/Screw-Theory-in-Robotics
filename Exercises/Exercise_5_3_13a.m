@@ -5,7 +5,7 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.6a: ABB IRB 910SC- GEOMETRIC Jacobian.
+% Exercise 5.3.13a: ABB IRB 910SC- GEOMETRIC Jacobian.
 %
 % The goal of this exercise is to prove the forward (Tcp Velocities)
 % calculation, based on: GEOMETRIC JACOBIAN

@@ -5,14 +5,11 @@
 %
 %% Ch3 - FORWARD KINEMATICS.
 %
-% Exercise 3.3.6: Scara Robots (e.g., ABB IRB910SC)
+% Exercise 3.3.6: Gantry Robots (e.g., ABB IRB6620LX)
 %
 % Screw Theory POE.
 % Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB910SC type robot of four Joints.
-%
-% Using Screw Theory Functions from ST24R.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
+% a ABB IRB6620LX type robot of six Joints.
 %
 % Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
@@ -42,25 +39,28 @@
 %
 clear
 clc
-%
-Mag = [0 0 0 0 0 0];
-for i = 1:4
-    Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
-end
-Mag(3)=rand*0.125;
-Mag
 % Mechanical characteristics of the Robot:
-po=[0;0;0]; pr=[0.4;0;0]; pf=[0.65;0;0]; pp=[0.65;0.125;0]; 
+po=[0;0;0]; pu=[1088;2500;0]; % In fact pu has not use because Theta1=TRA
+pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
+pf=[2.643;1.613;0]; pp=[3.000;1.613;0]; 
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pr pf pp];
-Joint = ['rot'; 'rot'; 'tra'; 'rot'];
-Axis = [AxisY AxisY AxisY -AxisY];
+Point = [pu pk pr pf pf pp];
+Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
 Twist = zeros(6,6);
-for i = 1:4
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(-pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
 %
+Mag = [0 0 0 0 0 0];
+Mag(1)=rand*pi;
+for i = 2:6
+    Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
+end
+Mag
+%
+% STEP1: Apply ForwardKinemats to the Robot.
 TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0

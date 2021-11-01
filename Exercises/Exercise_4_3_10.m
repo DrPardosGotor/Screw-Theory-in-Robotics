@@ -5,33 +5,27 @@
 %
 %% Ch4 - INVERSE KINEMATICS.
 %
-% Exercise 4.3.10: Pardos-Gotor SEVEN (PG7).
+% Exercise 4.3.10: Pardos-Gotor SIX (PG6).
 %
-% Calculate IK for three consecutive rotation SCREWS.
-% Find the Inverse Kinematics of 3 consecutive ROTATIONS SCREWS with
-% two PARALLEL axes and one SKEW axis.
-% which applied to a point move it ot a different point in space in SE(3)
+% Calculate IK for two consecutive SKEW rotation SCREWS.
+% This is a generalization for the PK2 which needs crossing axes.
+% This problem does not work for parallel axes, which is solved with PG4.
+% The PG6 solves the problem for both crossing and skewed axes.
 %
 % the movements are defined by the SCREWS whose "Twists" parameters
-% are: Axis = [Axis1 Axis2 Axis3], Point = [p1 p2 p3], JointType = 'rot'
-% and whose magnitudes are defined by Mag = [Theta1 Theta2 Theta3].
+% are: Axis = [Axis1 Axis2], Point = [p1 p2], JointType = 'rot'
+% and whose magnitudes are defined by Mag = [Theta1 Theta2].
 %
-% Compute angles "Th3", "Th2" & "Th1" of three subsequently applies SCREWS
-% with corresponding twists x3, x2 and x1, to move the point "p" to "k".
-% Beware of the order for the movement: first X3 + x2 & subsequently x1.
-% Point p is first moved to the point "e" or "f" by the Screw with Theta3
-% then moved to the point "c" or "d" by the Screw with Theta2
-% and then moved from "c" or "d" to the point "k" by the Screw with Theta1.
+% The magnitude Theta2 is aplied to point pp for moving it to pc (or pd)
+% then the magnitude Theta1 is aplied to pc (or pd) for moving them to pk.
 %
 % For checking the this function, this exercise has 3 steps:
-% STEP1: Apply ForwardKinemats to the Screws for any Mag (t3 + t2 + t1)
+% STEP1: Apply ForwardKinemats to the Screws for "whatever" Mag (t2 + t1)
 % (can be even more than 2pi) on pp and then getting a feasible pk.
-% STEP2: Calculate the IK solution by PG6 getting the magnitud
-% The problem could have up to FOUR TRIPLE solutions
-% Theta123 = [t1ck t2ec t3pe; t1ck t2fc t3pf; t1dk t2ed t3pe; t1dk t2fd t3pf;]
-% as a consequence of paths: p-e-c-k, p-f-c-k, p-e-d-k, p-f-d-k.
-% STEP3: Test the solutions applying
-% ForwardKinemats to the Screws on pp and checking we get the same pk.
+% STEP2: Calculate the IK solution by PG5 getting the magnitud
+% Theta1Theta2 = [t11 t21; t12 t22] DOUBLE SOLUTION.
+% STEP3: Test the solutions applying ForwardKinemats
+% to the Screws on pp and checking we get the same pk.
 %
 % Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
@@ -64,16 +58,14 @@ clc
 %
 pp = [rand*10 rand*10 rand*10]' % for testing various initial points
 %pp = [0 0 6]'
-Mag = [(rand-rand)*2*pi (rand-rand)*2*pi (rand-rand)*2*pi] % for testing various magnitudes
+Mag = [(rand-rand)*2*pi (rand-rand)*2*pi] % for testing various magnitudes
 %Mag = [pi/2 pi]
 %
+p1 = [0 0 0]'; p2 = [0 0 1]'; % points for the Screw Axes.
+Point = [p1 p2];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]';
-%
-r1 = [0 0 0]'; r2 = [1 0 1]'; r3 = [1 0 2]';% points for the Screw Axes.
-Point = [r1 r2 r3];
-% Axis for w1 must be skew and w2 and w3 parallel.
-Axis = [AxisZ AxisY AxisY];
-JointType = ['rot'; 'rot'; 'rot']; % whatever for testing the exercise
+Axis = [AxisX AxisY]; % whatever for testing the exercise
+JointType = ['rot'; 'rot']; % whatever for testing the exercise
 % 
 % Now we build the TWISTS matrix for the chosen Joints
 Twist = joint2twist(Axis(:,1), Point(:,1), JointType(1,:));
@@ -89,17 +81,18 @@ pk1h = HstR1*[pp; 1];
 pk1 = pk1h(1:3)
 % STEP2: Calculate the IK solution by PK2 getting the magnitud
 % Theta1Theta2 = [t11 t21; t12 t22] DOUBLE SOLUTION.
-The123 = PardosGotorSeven(Twist(:,1), Twist(:,2), Twist(:,3), pp, pk1)
+Th1Th2 = PardosGotorSix(Twist(:,1), Twist(:,2), pp, pk1)
 %
-% STEP3: Test the solutions applying ForwardKinemats to the Screws
-% on pp and checking we get the same pk.
-for i = 1:size(The123,1)
-    TwMagi = [Twist; The123(i,:)];
-    HstRi = ForwardKinematicsPOE(TwMagi);
-    i
-    pki = HstRi*[pp; 1];
-    pk = pki(1:3)
-end
+% STEP3: Test the TWO DOUBLE solutions by PK2 Theta1 & Theta2 applying
+% ForwardKinemats to the Screws on pp and checking we get the same pk.
+TwMag2 = [Twist; Th1Th2(1,:)];
+HstR2 = ForwardKinematicsPOE(TwMag2);
+pk2h = HstR2*[pp; 1];
+pk2 = pk2h(1:3)
+TwMag3 = [Twist; Th1Th2(2,:)];
+HstR3 = ForwardKinematicsPOE(TwMag3);
+pk3h = HstR3*[pp; 1];
+pk3 = pk3h(1:3)
 %
-% Check that pki = pk) 
+% Check that (pk1 = pk2 = pk3) 
 %

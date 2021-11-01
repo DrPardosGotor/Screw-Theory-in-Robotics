@@ -5,15 +5,21 @@
 %
 %% Ch3 - FORWARD KINEMATICS.
 %
-% Exercise 3.3.2: Puma Robots (e.g., ABB IRB120)
+% Exercise 3.3.9: Redundant Robots (e.g., KUKA IIWA)
 %
 % Screw Theory POE.
-% Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB120 (ToolDown configuration) type robot of six Joints
+% The goal of this exercise is to TEST
+% Calculate the Homogeneous Matrix transformation of the end-effector for
+% a Redundant robot KUKA IIWA with seven Joints.
 %
+% Mechanical characteristics of the Robot (AT REF HOME POSITION):
+% po = Origen for he STATIONARY system of reference.
+% pk = point in the crossing of the DOF Th1(rot) & Th2(rot) & Th3(rot).
+% pr = point in the axis of Th4(rot) Th5(rot).
+% pf = point in the crossing of the DOF Th5(rot), Th6(rot), Th7(rot).
+% pp = TcP Tool Center Point
+% hst0 = Tool (TcP) configuration (rot+tra) at robot reference position. 
 %
-% Using Screw Theory Functions from ST24R.
-% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
@@ -44,29 +50,27 @@
 clear
 clc
 %
+Mag = zeros(1,7);
+for i = 1:7
+    Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
+end
+Mag
+%
 % Mechanical characteristics of the Robot:
-po=[0;0;0]; pk=[0; 0; 0.290]; pr=[0; 0; 0.560];
-pf=[0.302; 0; 0.630]; pp=[0.302; 0; 0.470];
+po=[0;0;0]; pk=[0;0;0.36]; pr=[0;0;0.78];
+pf=[0;0;1.18]; pp=[0.2;0;1.18];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk pr pf pf pf];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
-for i = 1:6
+Point = [po pk po pr po pf pf];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisZ -AxisY AxisZ -AxisY AxisX];
+Twist = zeros(6,7);
+for i = 1:7
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
 %
-The = zeros(1,6);
-for i = 1:6
-    The(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
-end
-%
-%
-tic;
-TwMag = [Twist; The]; % assign the rand values to joint Theta magnitudes.
+% STEP1: Apply ForwardKinemats to the Robot.
+TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0
-tFKST = round(toc*1000,3);
-timeFKST= ['Time to solve FK D-H ST24R ', num2str(tFKST),' ms']
-%
 %

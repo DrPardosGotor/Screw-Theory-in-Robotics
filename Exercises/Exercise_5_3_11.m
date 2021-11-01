@@ -5,9 +5,9 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.5: ABB IRB6620LX - GEOMETRIC Jacobian.
+% Exercise 5.3.11 ABB IRB1600 - GEOMETRIC Jacobian.
 %
-% For the exercise of the Screw Theory the aim is to
+% For the exercise of the Screw Theory, the aim is to
 % demonstrate the differential kinematics formulations (inv + for).
 % FIRST goal is to calculate the INVERSE (Joint Thetap Velocities)
 % Diferential Kinematics, based on the known or desired Tool Velocities.
@@ -47,29 +47,28 @@ clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-po=[0;0;0]; pu=[1088;2500;0]; % In fact pu has not use because Theta1=TRA
-pk=[1.468;2.500;0]; pr=[2.443;2.500;0];
-pf=[2.643;1.613;0]; pp=[3.000;1.613;0]; 
+po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
+pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pu pk pr pf pf pf];
-Joint = ['tra'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ -AxisZ -AxisZ -AxisY -AxisZ AxisX];
+Point = [po pk pr pf pf pf];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
 Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2)*rotZ2tform(-pi/2);
+Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
 % Motion RANGE for the robot joints POSITION rad, (by catalog).
-% Thmax = [ 3.3 pi/180*[125 70 300 130 300]];
-% Thmin = [ 1.8 -pi/180*[125 180 300 130 300]];
+% Thmax = pi/180*[180 120 65 200 115 400];
+% Thmin = -pi/180*[180 90 245 200 115 400];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = [3.3 pi/180*[90 90 150 120 190]];
+% Thpmax = pi/180*[180 180 185 385 400 460];
 %
 %%%%%%%%%%%%%%%%%%%%%%
 % FORWARD KINEMATICS to get a target inside the robot workspace
-Theta = [125*(rand-rand) 70*rand-180*rand 300*(rand-rand)];
-Theta = [Theta 130*(rand-rand) 300*(rand-rand)];
-Theta = [(2.5*rand)+1.8 Theta*pi/180];
+Theta = [180*(rand-rand) 120*rand-90*rand 65*rand-245*rand];
+Theta = [Theta 200*(rand-rand) 115*(rand-rand) 400*(rand-rand)];
+Theta = Theta*pi/180;
 TwMag = [Twist; Theta];
 noap = ForwardKinematicsPOE(TwMag) * Hst0;
 t1goal = [noap(1:3,4)' tform2eul(noap,'XYZ')]

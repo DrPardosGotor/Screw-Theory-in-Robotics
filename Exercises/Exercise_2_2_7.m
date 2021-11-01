@@ -5,7 +5,7 @@
 %
 %% Ch2 - MATHEMATICAL TOOLS
 % 
-% Exercise 2.2.2: Homogeneous Rotation Plus Translation
+% Exercise 2.2.7: Homogeneous Rotation Plus Translation
 %
 % Transform a vector rt(-3,4,-11) expressed in coordinates of the T(OUVW)
 % system, to its expression in coordinates of the reference system S(OXYZ).

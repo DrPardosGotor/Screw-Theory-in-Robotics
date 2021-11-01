@@ -5,11 +5,11 @@
 %
 %% Ch3 - FORWARD KINEMATICS.
 %
-% Exercise 3.3.4: Bending Backwards Robots (e.g., ABB IRB1600)
+% Exercise 3.3.4: Puma Robots (e.g., ABB IRB120) "Tool-Up"
 %
 % Screw Theory POE.
 % Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB 1600 PUMA type robot of six Joints.
+% a ABB IRB120 (ToolUp configuration) type robot of six Joints
 %
 % Using Screw Theory Functions from ST24R.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
@@ -43,17 +43,17 @@
 clear
 clc
 % Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0.15;0;0.4865]; pr=[0.15;0;0.9615];
-pf=[0.75;0;0.9615]; pp=[0.9;0;0.9615];
+po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
+pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
 Point = [pk pk pr pf pf pp];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisY AxisX AxisY AxisX];
+Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
 Twist = zeros(6,6);
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
 Mag = [0 0 0 0 0 0];
 for i = 1:6

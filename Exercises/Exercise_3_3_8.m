@@ -5,21 +5,14 @@
 %
 %% Ch3 - FORWARD KINEMATICS.
 %
-% Exercise 3.3.8: Redundant Robots (e.g., KUKA IIWA)
+% Exercise 3.3.8: Collaborative Robots (e.g., UNIVERSAL UR16e)
 %
 % Screw Theory POE.
-% The goal of this exercise is to TEST
-% Calculate the Homogeneous Matrix transformation of the end-effector for
-% a Redundant robot KUKA IIWA with seven Joints.
+% Calculate the Homogeneous Matrix transformation for the end-effector of
+% a UNIVERSAL UR16e collaborartive type robot of six Joints.
 %
-% Mechanical characteristics of the Robot (AT REF HOME POSITION):
-% po = Origen for he STATIONARY system of reference.
-% pk = point in the crossing of the DOF Th1(rot) & Th2(rot) & Th3(rot).
-% pr = point in the axis of Th4(rot) Th5(rot).
-% pf = point in the crossing of the DOF Th5(rot), Th6(rot), Th7(rot).
-% pp = TcP Tool Center Point
-% hst0 = Tool (TcP) configuration (rot+tra) at robot reference position. 
-%
+% Using Screw Theory Functions from ST24R.
+% by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
 %
 % Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
@@ -50,27 +43,28 @@
 clear
 clc
 %
-Mag = zeros(1,7);
-for i = 1:7
+% n is number of DOF.
+n = 6;
+Mag = zeros(1,n);
+for i = 1:6
     Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
 end
-Mag
+% Mechanical characteristics of the IRB120 Robot:
+% Denavit-Hartenberg parameters for the UR Arms:
+d1 = 0.181; a2 = 0.478; a3 = 0.360; d4 = 0.174; d5 = 0.120; d6 = 0.190;
 %
-% Mechanical characteristics of the Robot:
-po=[0;0;0]; pk=[0;0;0.36]; pr=[0;0;0.78];
-pf=[0;0;1.18]; pp=[0.2;0;1.18];
+po=[0; 0; 0]; pk=[0; 0; d1]; pr=[a2; 0; d1]; pf=[a2+a3; d4; d1];
+pg=[a2+a3; d4; d1-d5]; pp=[a2+a3; d4+d6; d1-d5];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk po pr po pf pf];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisZ -AxisY AxisZ -AxisY AxisX];
-Twist = zeros(6,7);
-for i = 1:7
+Point = [po pk pr pf pg pp];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisY AxisY -AxisZ AxisY];
+Twist = zeros(6,6);
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotY2tform(pi/2);
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
 %
-% STEP1: Apply ForwardKinemats to the Robot.
 TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
-HstR = ForwardKinematicsPOE(TwMag);
-noap = HstR * Hst0
+noap = ForwardKinematicsPOE(TwMag) * Hst0
 %

@@ -3,16 +3,14 @@
 % by CRC Press
 % © 2022 Jose M Pardos-Gotor
 %
-%% Ch3 - FORWARD KINEMATICS.
+%% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 3.3.7: Scara Robots (e.g., ABB IRB910SC)
+% Exercise 5.3.13b: ABB IRB 910SC - GEOMETRIC Jacobian.
 %
-% Screw Theory POE.
-% Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB910SC type robot of four Joints.
-%
-% Using Screw Theory Functions from ST24R.
+% The goal of this exercise is to get the inverse (Joint Velocities) for a 
+% given tool velocities, based on the use of the GEOMETRIC JACOBIAN
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
+%
 %
 % Copyright (C) 2003-2021, by Dr. Jose M. Pardos-Gotor.
 %
@@ -31,37 +29,53 @@
 % You should have received a copy of the GNU Lesser General Public License
 % along with ST24R.  If not, see <http://www.gnu.org/licenses/>.
 %
-% http://www.
+% http://www.preh
 %
 % CHANGES:
 % Revision 1.1  2021/02/11 00:00:01
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% MATLAB Code
+%% MATLAB Code.
 %
 clear
 clc
 %
-Mag = [0 0 0 0 0 0];
-for i = 1:4
-    Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
-end
-Mag(3)=rand*0.125;
-Mag
+% the magnitudes for the Joints.
+Theta = [-pi/2 -pi/2 0 0; -pi/2 -2.7 0 0; -pi/2 -3.141 0 0; pi/2 -2.7 0 0];
+% the velocity for TcP Position.
+TcPp = [0.14 0 -0.23 0 -0.92 0]'
+%
+ThetapGJ = zeros(size(Theta,2),size(Theta,1));
+%
 % Mechanical characteristics of the Robot:
-po=[0;0;0]; pr=[0.4;0;0]; pf=[0.65;0;0]; pp=[0.65;0.125;0]; 
+l1 = 0.4; l2 = 0.25; l3 = 0.125;
+po=[0;0;0]; pr=[l1;0;0]; pf=[l1+l2;0;0]; pp=[l1+l2;l3;0]; 
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
 Point = [po pr pf pp];
 Joint = ['rot'; 'rot'; 'tra'; 'rot'];
 Axis = [AxisY AxisY AxisY -AxisY];
-Twist = zeros(6,6);
+Twist = zeros(6,4);
 for i = 1:4
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
 Hst0 = trvP2tform(pp)*rotX2tform(pi/2)*rotZ2tform(-pi);
 %
-TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
+for i = 1:size(Theta)
+tic;
+% Apply ForwardKinemats to the Robot.
+TwMag = [Twist; Theta(i,:)]; 
 HstR = ForwardKinematicsPOE(TwMag);
-noap = HstR * Hst0
+noap = HstR * Hst0;
+%
+% The MANIPULATOR JACOBIAN by DEFINITION.
+JstS = GeoJacobianS(TwMag);
+%
+% The Velocity for the Joints of the Robot is:
+%ThetapGJ = JstS\[TcPp(1:3)-cross(TcPp(4:6),noap(1:3,4)); TcPp(4:6)]
+ThetapGJ(:,i) = JstS\[TcPp(1:3)-axis2skew(TcPp(4:6))*noap(1:3,4); TcPp(4:6)]
+tIGJ = round(toc*1000,1);
+time_IK_GJ = ['Time differential inverse kinematics ', num2str(tIGJ),' ms']
+%
+end
 %

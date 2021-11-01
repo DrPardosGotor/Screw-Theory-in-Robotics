@@ -5,11 +5,12 @@
 %
 %% Ch3 - FORWARD KINEMATICS.
 %
-% Exercise 3.3.3: Puma Robots (e.g., ABB IRB120) "Tool-Up"
+% Exercise 3.3.3: Puma Robots (e.g., ABB IRB120)
 %
 % Screw Theory POE.
 % Calculate the Homogeneous Matrix transformation for the end-effector of
-% a ABB IRB120 (ToolUp configuration) type robot of six Joints
+% a ABB IRB120 (ToolDown configuration) type robot of six Joints
+%
 %
 % Using Screw Theory Functions from ST24R.
 % by Dr. Pardos-Gotor ST24R "Screw Theory Toolbox for Robotics" MATLAB.
@@ -42,26 +43,30 @@
 %
 clear
 clc
-% Mechanical characteristics of the IRB120 Robot:
-po=[0;0;0]; pk=[0;0.290;0]; pr=[0;0.560;0];
-pf=[0.302;0.630;0]; pp=[0.302;0.790;0];
+%
+% Mechanical characteristics of the Robot:
+po=[0;0;0]; pk=[0; 0; 0.290]; pr=[0; 0; 0.560];
+pf=[0.302; 0; 0.630]; pp=[0.302; 0; 0.470];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [pk pk pr pf pf pp];
+Point = [po pk pr pf pf pf];
 Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisY AxisZ AxisZ AxisX AxisZ AxisY];
-Twist = zeros(6,6);
+Axis = [AxisZ AxisY AxisY AxisX AxisY -AxisZ];
 for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
+Hst0 = trvP2tform(pp)*rotY2tform(pi);
 %
-Mag = [0 0 0 0 0 0];
+The = zeros(1,6);
 for i = 1:6
-    Mag(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
+    The(i) = (rand-rand)*pi; % for testing various Theta1-Theta6
 end
-Mag
 %
-TwMag = [Twist; Mag]; % assign the rand values to joint Theta magnitudes.
+%
+tic;
+TwMag = [Twist; The]; % assign the rand values to joint Theta magnitudes.
 HstR = ForwardKinematicsPOE(TwMag);
 noap = HstR * Hst0
+tFKST = round(toc*1000,3);
+timeFKST= ['Time to solve FK D-H ST24R ', num2str(tFKST),' ms']
+%
 %

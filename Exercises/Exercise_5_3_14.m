@@ -5,9 +5,9 @@
 %
 %% Ch5 - DIFFERENTIAL KINEMATICS.
 %
-% Exercise 5.3.8: KUKA IIWA14 - GEOMETRIC Jacobian.
+% Exercise 5.3.14: UNIVERSAL UR16e - GEOMETRIC Jacobian.
 %
-% For the exercise of the Screw Theory the aim is to
+% For the exercise of the Screw Theory, the aim is to
 % demonstrate the differential kinematics formulations (inv + for).
 % FIRST goal is to calculate the INVERSE (Joint Thetap Velocities)
 % Diferential Kinematics, based on the known or desired Tool Velocities.
@@ -40,38 +40,35 @@
 % General cleanup of code: help comments, see also, copyright
 % references, clarification of functions.
 %
-%% E536a_ST24R_FIDK_KUKAIIWA14_GeometricJacbian
+%% MATLAB Code.
 %
 clear;
 clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mechanical characteristics of the Robot (AT REF HOME POSITION):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% The S Spatial system has the "Z" axis up (i.e., -g direction).
-%
-po=[0;0;0]; pk=[0;0;0.36]; pr=[0;0;0.78];
-pf=[0;0;1.18]; pp=[0;0;1.38];
+po=[0; 0; 0]; pk=[0; 0; 0.181]; pr=[0.478; 0; 0.181];
+pf=[0.838; 0.174; 0.181];
+pg=[0.838; 0.174; 0.061]; pp=[0.838; 0.364; 0.061];
 AxisX = [1 0 0]'; AxisY = [0 1 0]'; AxisZ = [0 0 1]'; 
-Point = [po pk po pr po pf po];
-Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
-Axis = [AxisZ AxisY AxisZ -AxisY AxisZ AxisY AxisZ];
-Twist = zeros(6,7);
-for i = 1:7
+Point = [po pk pr pf pg pp];
+Joint = ['rot'; 'rot'; 'rot'; 'rot'; 'rot'; 'rot'];
+Axis = [AxisZ AxisY AxisY AxisY -AxisZ AxisY];
+Twist = zeros(6,6);
+for i = 1:6
     Twist(:,i) = joint2twist(Axis(:,i), Point(:,i), Joint(i,:));
 end
-Hst0 = trvP2tform(pp);
-%
-% Maximum Magnitue for the robot joints POSITION rad, (by catalog).
-% Thmax = pi/180*[170 120 170 120 170 120 175];
-% Thmin = -pi/180*[170 120 170 120 170 120 175];
+Hst0 = trvP2tform(pp)*rotX2tform(-pi/2)*rotZ2tform(pi);
+% Motion RANGE for the robot joints POSITION rad, (by catalog).
+% Thmax = pi/180*[360 360 360 360 360 360];
+% Thmin = -pi/180*[360 360 360 360 360 360];
 % Maximum SPEED for the robot joints rad/sec, (by catalog).
-% Thpmax = pi/180*[85 85 100 75 130 135 135];
+% Thpmax = pi/180*[120 120 180 180 180 180];
 %
 %%%%%%%%%%%%%%%%%%%%%%
 % FORWARD KINEMATICS to get a target inside the robot workspace
-Theta = [170*(rand-rand) 120*(rand-rand) 170*(rand-rand)];
-Theta = [Theta 120*(rand-rand) 170*(rand-rand) 120*(rand-rand)];
-Theta = [Theta 175*(rand-rand)];
+Theta = [360*(rand-rand) 360*(rand-rand) 360*(rand-rand)];
+Theta = [Theta 360*(rand-rand) 360*(rand-rand) 360*(rand-rand)];
 Theta = Theta*pi/180;
 TwMag = [Twist; Theta];
 noap = ForwardKinematicsPOE(TwMag) * Hst0;
